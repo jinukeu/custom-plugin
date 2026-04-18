@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  :root.dark {
+    color-scheme: dark;
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    font-feature-settings: "cv11", "ss01", "ss03";
+  }
+}
+
+@layer components {
+  .prose-vault {
+    @apply font-serif text-[17px] leading-[1.75];
+    max-width: 68ch;
+  }
+  .prose-vault h1 {
+    @apply text-4xl font-semibold tracking-tight mt-0 mb-6 text-ink-900 dark:text-ink-50;
+    font-family: "Source Serif 4", Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+  .prose-vault h2 {
+    @apply text-2xl font-semibold tracking-tight mt-12 mb-4 text-ink-900 dark:text-ink-50;
+    border-top: 1px solid theme('colors.ink.200');
+    padding-top: 1.75rem;
+  }
+  .dark .prose-vault h2 {
+    border-top-color: theme('colors.ink.800');
+  }
+  .prose-vault h3 {
+    @apply text-xl font-semibold mt-8 mb-3;
+  }
+  .prose-vault h4 {
+    @apply text-lg font-semibold mt-6 mb-2;
+  }
+  .prose-vault p {
+    @apply my-4;
+  }
+  .prose-vault a {
+    @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent transition-colors;
+  }
+  .prose-vault strong {
+    @apply font-semibold text-ink-900 dark:text-ink-50;
+  }
+  .prose-vault em {
+    @apply italic;
+  }
+  .prose-vault ul, .prose-vault ol {
+    @apply my-4 pl-6;
+  }
+  .prose-vault ul {
+    list-style-type: disc;
+  }
+  .prose-vault ol {
+    list-style-type: decimal;
+  }
+  .prose-vault li {
+    @apply my-1.5;
+  }
+  .prose-vault li::marker {
+    color: theme('colors.ink.400');
+  }
+  .prose-vault blockquote {
+    @apply my-6 pl-5 py-1 italic text-ink-700 dark:text-ink-300;
+    border-left: 3px solid theme('colors.accent.DEFAULT');
+    background: linear-gradient(90deg, theme('colors.ink.100/60') 0%, transparent 100%);
+    border-radius: 0 4px 4px 0;
+  }
+  .dark .prose-vault blockquote {
+    background: linear-gradient(90deg, theme('colors.ink.800/60') 0%, transparent 100%);
+  }
+  .prose-vault blockquote p {
+    @apply my-2;
+  }
+  .prose-vault code {
+    @apply font-mono text-[0.9em] px-1.5 py-0.5 rounded bg-ink-100 dark:bg-ink-800 text-ink-800 dark:text-ink-200;
+  }
+  .prose-vault pre {
+    @apply my-6 p-5 rounded-lg overflow-x-auto text-[0.9em] leading-relaxed;
+    background: theme('colors.ink.900') !important;
+    border: 1px solid theme('colors.ink.800');
+  }
+  .prose-vault pre code {
+    @apply bg-transparent p-0 text-ink-100;
+    font-size: inherit;
+  }
+  .prose-vault table {
+    @apply w-full my-6 text-[0.95em] border-collapse;
+  }
+  .prose-vault thead {
+    @apply bg-ink-100 dark:bg-ink-800;
+  }
+  .prose-vault th {
+    @apply text-left font-semibold px-4 py-2.5 border-b-2 border-ink-300 dark:border-ink-700;
+  }
+  .prose-vault td {
+    @apply px-4 py-2.5 border-b border-ink-200 dark:border-ink-800;
+  }
+  .prose-vault tbody tr:nth-child(even) {
+    @apply bg-ink-50/50 dark:bg-ink-900/40;
+  }
+  .prose-vault hr {
+    @apply my-10 border-0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, theme('colors.ink.300'), transparent);
+  }
+  .dark .prose-vault hr {
+    background: linear-gradient(90deg, transparent, theme('colors.ink.700'), transparent);
+  }
+  .prose-vault img {
+    @apply rounded-lg my-6 mx-auto shadow-sm;
+    max-width: 100%;
+    height: auto;
+  }
+  .prose-vault details {
+    @apply my-5 rounded-lg overflow-hidden transition-all;
+    border: 1px solid theme('colors.ink.200');
+    background: linear-gradient(135deg, theme('colors.ink.50/80') 0%, theme('colors.ink.100/40') 100%);
+  }
+  .dark .prose-vault details {
+    border-color: theme('colors.ink.800');
+    background: linear-gradient(135deg, theme('colors.ink.900/80') 0%, theme('colors.ink.800/40') 100%);
+  }
+  .prose-vault details[open] {
+    border-color: theme('colors.accent.DEFAULT');
+    box-shadow: 0 1px 3px theme('colors.accent.DEFAULT/15');
+  }
+  .prose-vault summary {
+    @apply cursor-pointer font-semibold px-5 py-3 select-none transition-colors;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .prose-vault summary::-webkit-details-marker {
+    display: none;
+  }
+  .prose-vault summary::before {
+    content: "▸";
+    display: inline-block;
+    color: theme('colors.accent.DEFAULT');
+    transition: transform 200ms ease;
+    font-size: 0.85em;
+  }
+  .prose-vault details[open] > summary::before {
+    transform: rotate(90deg);
+  }
+  .prose-vault details > *:not(summary) {
+    @apply px-5 pb-4;
+    animation: fade-in 200ms ease-out;
+  }
+  .prose-vault .task-list-item {
+    @apply list-none -ml-6;
+  }
+  .prose-vault .task-list-item input[type="checkbox"] {
+    @apply mr-2 align-middle;
+  }
+
+  .mermaid-render {
+    @apply my-6 flex justify-center items-center p-4 rounded-lg overflow-x-auto;
+    background: theme('colors.ink.50');
+    border: 1px solid theme('colors.ink.200');
+  }
+  .dark .mermaid-render {
+    background: theme('colors.ink.900');
+    border-color: theme('colors.ink.800');
+  }
+
+  .heading-anchor {
+    @apply opacity-0 ml-2 text-ink-400 no-underline transition-opacity;
+  }
+  .prose-vault h1:hover .heading-anchor,
+  .prose-vault h2:hover .heading-anchor,
+  .prose-vault h3:hover .heading-anchor,
+  .prose-vault h4:hover .heading-anchor {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.ink.300') transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.ink.300');
+    border-radius: 3px;
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.ink.700');
+  }
+}

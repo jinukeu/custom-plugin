@@ -1,0 +1,8 @@
+.DS_Store
+*.swp
+*.swo
+
+# Viewer template shouldn't ship build artifacts
+skills/tutor-view/viewer/node_modules/
+skills/tutor-view/viewer/dist/
+skills/tutor-view/viewer/.vite/
