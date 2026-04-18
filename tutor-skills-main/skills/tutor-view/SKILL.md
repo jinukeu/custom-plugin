@@ -82,6 +82,13 @@ Produces `.tutor-view/dist/`. Can be served with any static host or `npx serve .
 
 If this skill is reinstalled with an updated `viewer/`, ask the user before overwriting `.tutor-view/`. Preserve `node_modules/` if possible to skip reinstall.
 
+## Node polyfills (Buffer)
+
+`gray-matter`는 브라우저에서 Node의 `Buffer`를 참조합니다. `vault-index.ts`의 static import가 `main.tsx` 본문보다 먼저 평가되므로 `main.tsx`에서 수동 polyfill을 해도 타이밍이 늦습니다. 반드시 플러그인 레벨에서 주입해야 합니다.
+
+- `vite.config.ts`에 `vite-plugin-node-polyfills`가 포함되어 있어야 하며, `nodePolyfills({ include: ['buffer'], globals: { Buffer: true } })`로 설정되어 있어야 합니다.
+- `main.tsx`에 `window.Buffer = ...` 같은 수동 polyfill을 추가하지 마세요 (static import 체인에 의해 항상 너무 늦음).
+
 ## Features
 
 - **Sidebar** with collapsible folder tree mirroring `StudyVault/` layout

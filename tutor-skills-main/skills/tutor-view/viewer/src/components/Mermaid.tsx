@@ -1,18 +1,35 @@
 import { useEffect, useRef, useState } from 'react'
 import mermaid from 'mermaid'
 
-let mermaidInitialized = false
-function initMermaid(dark: boolean) {
-  mermaid.initialize({
+function getMermaidConfig(dark: boolean) {
+  return {
     startOnLoad: false,
-    theme: dark ? 'dark' : 'default',
-    themeVariables: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '14px',
-    },
-    securityLevel: 'strict',
-  })
-  mermaidInitialized = true
+    theme: 'base' as const,
+    themeVariables: dark
+      ? {
+          fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '13px',
+          background: 'rgb(63, 63, 63)',
+          primaryColor: 'rgb(63, 63, 63)',
+          primaryTextColor: 'rgba(255, 255, 255, 0.81)',
+          primaryBorderColor: 'rgba(255, 255, 255, 0.3)',
+          lineColor: 'rgba(255, 255, 255, 0.45)',
+          secondaryColor: 'rgb(47, 47, 47)',
+          tertiaryColor: 'rgb(37, 37, 37)',
+        }
+      : {
+          fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
+          fontSize: '13px',
+          background: '#f7f6f3',
+          primaryColor: '#ffffff',
+          primaryTextColor: 'rgb(55, 53, 47)',
+          primaryBorderColor: 'rgba(55, 53, 47, 0.3)',
+          lineColor: 'rgba(55, 53, 47, 0.55)',
+          secondaryColor: '#f1f1ef',
+          tertiaryColor: '#e3e2e0',
+        },
+    securityLevel: 'strict' as const,
+  }
 }
 
 interface Props {
@@ -26,7 +43,7 @@ export function Mermaid({ code }: Props) {
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark')
-    if (!mermaidInitialized) initMermaid(isDark)
+    mermaid.initialize(getMermaidConfig(isDark))
     const id = 'mermaid-' + Math.random().toString(36).slice(2, 10)
     mermaid
       .render(id, code)
@@ -42,15 +59,7 @@ export function Mermaid({ code }: Props) {
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const isDark = document.documentElement.classList.contains('dark')
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: isDark ? 'dark' : 'default',
-        themeVariables: {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '14px',
-        },
-        securityLevel: 'strict',
-      })
+      mermaid.initialize(getMermaidConfig(isDark))
       const id = 'mermaid-' + Math.random().toString(36).slice(2, 10)
       mermaid
         .render(id, code)
@@ -66,8 +75,8 @@ export function Mermaid({ code }: Props) {
 
   if (error) {
     return (
-      <div className="mermaid-render text-sm text-red-500">
-        <pre>{error}</pre>
+      <div className="mermaid-render" style={{ color: '#eb5757' }}>
+        <pre className="font-mono text-[12px]">{error}</pre>
       </div>
     )
   }

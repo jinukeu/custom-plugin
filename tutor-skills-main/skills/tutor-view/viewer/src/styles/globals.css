@@ -2,179 +2,529 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ────────────────────────────────────────────────
+   Tokens — refined Notion with warm paper surface
+   ────────────────────────────────────────────── */
+:root {
+  /* Surfaces — slight warm paper, not pure white */
+  --bg: #fbfaf7;
+  --bg-raised: #ffffff;
+  --bg-sidebar: #f5f4ef;
+  --bg-hover: rgba(55, 53, 47, 0.06);
+  --bg-hover-strong: rgba(55, 53, 47, 0.1);
+  --bg-selected: rgba(35, 131, 226, 0.12);
+  --bg-callout: #f3f2ee;
+  --bg-code-inline: rgba(122, 116, 104, 0.17);
+  --bg-codeblock: #f6f5f0;
+
+  /* Text */
+  --text: rgb(55, 53, 47);
+  --text-strong: rgb(32, 30, 26);
+  --text-gray: rgba(55, 53, 47, 0.62);
+  --text-light: rgba(55, 53, 47, 0.42);
+  --text-placeholder: rgba(55, 53, 47, 0.32);
+
+  /* Structural */
+  --divider: rgba(55, 53, 47, 0.09);
+  --divider-strong: rgba(55, 53, 47, 0.16);
+  --border: rgba(55, 53, 47, 0.16);
+
+  --accent: rgb(35, 122, 216);
+  --accent-hover: rgb(28, 104, 188);
+  --code-text: #d23f3f;
+
+  /* Shadows — subtle elevation */
+  --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.04);
+  --shadow-md:
+    rgba(15, 15, 15, 0.04) 0 0 0 1px,
+    rgba(15, 15, 15, 0.02) 0 2px 4px,
+    rgba(15, 15, 15, 0.06) 0 8px 24px -4px;
+  --shadow-lg:
+    rgba(15, 15, 15, 0.05) 0 0 0 1px,
+    rgba(15, 15, 15, 0.1) 0 4px 12px,
+    rgba(15, 15, 15, 0.15) 0 16px 40px -8px;
+
+  /* Typography scale — modular, tuned for Pretendard 한글 */
+  --fs-display: 44px;
+  --fs-h1: 30px;
+  --fs-h2: 23px;
+  --fs-h3: 18px;
+  --fs-h4: 15.5px;
+  --fs-body: 15px;
+  --fs-ui: 14px;
+  --fs-small: 13px;
+  --fs-micro: 11.5px;
+  --fs-code: 13.5px;
+
+  --lh-display: 1.15;
+  --lh-h1: 1.22;
+  --lh-h2: 1.28;
+  --lh-h3: 1.35;
+  --lh-h4: 1.45;
+  --lh-body: 1.62;
+  --lh-ui: 1.5;
+  --lh-small: 1.45;
+  --lh-micro: 1.3;
+  --lh-code: 1.65;
+
+  --ls-display: -0.028em;
+  --ls-h1: -0.022em;
+  --ls-h2: -0.018em;
+  --ls-h3: -0.012em;
+  --ls-h4: -0.006em;
+  --ls-body: -0.006em;
+  --ls-ui: -0.004em;
+  --ls-small: -0.002em;
+  --ls-micro: 0.04em;
+  --ls-code: 0;
+
+  --fw-display: 700;
+  --fw-h1: 700;
+  --fw-h2: 650;
+  --fw-h3: 600;
+  --fw-h4: 600;
+  --fw-body: 400;
+  --fw-ui: 450;
+  --fw-small: 500;
+  --fw-micro: 600;
+  --fw-code: 450;
+
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg: #1a1a1a;
+  --bg-raised: #222222;
+  --bg-sidebar: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.055);
+  --bg-hover-strong: rgba(255, 255, 255, 0.09);
+  --bg-selected: rgba(35, 131, 226, 0.22);
+  --bg-callout: #2b2b2b;
+  --bg-code-inline: rgba(232, 225, 214, 0.1);
+  --bg-codeblock: #242424;
+
+  --text: rgba(255, 255, 255, 0.85);
+  --text-strong: rgb(255, 255, 255);
+  --text-gray: rgba(255, 255, 255, 0.5);
+  --text-light: rgba(255, 255, 255, 0.3);
+  --text-placeholder: rgba(255, 255, 255, 0.22);
+
+  --divider: rgba(255, 255, 255, 0.09);
+  --divider-strong: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.16);
+
+  --accent: rgb(80, 155, 230);
+  --accent-hover: rgb(110, 170, 235);
+  --code-text: #ff7a7a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md:
+    rgba(0, 0, 0, 0.4) 0 0 0 1px,
+    rgba(0, 0, 0, 0.2) 0 2px 4px,
+    rgba(0, 0, 0, 0.35) 0 8px 24px -4px;
+  --shadow-lg:
+    rgba(0, 0, 0, 0.5) 0 0 0 1px,
+    rgba(0, 0, 0, 0.4) 0 4px 12px,
+    rgba(0, 0, 0, 0.55) 0 16px 40px -8px;
+
+  color-scheme: dark;
+}
+
 @layer base {
-  :root {
-    color-scheme: light;
-  }
-  :root.dark {
-    color-scheme: dark;
-  }
-  html, body, #root {
+  html,
+  body,
+  #root {
     height: 100%;
   }
+  html {
+    background: var(--bg);
+  }
   body {
-    font-feature-settings: "cv11", "ss01", "ss03";
+    background: var(--bg);
+    color: var(--text);
+    font-family:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+      system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+      'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-feature-settings: 'ss01', 'cv01', 'tnum', 'case';
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    letter-spacing: var(--ls-body);
+    font-weight: var(--fw-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgba(35, 131, 226, 0.26);
+    color: inherit;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 154, 151, 0.45) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: transparent;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 8px;
+  }
+  *:hover::-webkit-scrollbar-thumb {
+    background: rgba(155, 154, 151, 0.45);
+    background-clip: padding-box;
+  }
+
+  /* Focus rings — subtle but present */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
   }
 }
 
 @layer components {
-  .prose-vault {
-    @apply font-serif text-[17px] leading-[1.75];
-    max-width: 68ch;
+  /* ── Notion-style block hover handle ── */
+  .block {
+    position: relative;
   }
+  .block::before {
+    content: "";
+    position: absolute;
+    left: -38px;
+    top: 4px;
+    bottom: 4px;
+    width: 28px;
+    display: block;
+    opacity: 0;
+    background-image:
+      radial-gradient(circle, var(--text-light) 1.4px, transparent 1.4px),
+      radial-gradient(circle, var(--text-light) 1.4px, transparent 1.4px);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 10px 7px, 16px 7px;
+    background-repeat: repeat-y;
+    transition: opacity 120ms ease;
+    pointer-events: none;
+  }
+  .block:hover::before {
+    opacity: 0.55;
+  }
+
+  /* ── Prose ── */
+  .prose-vault {
+    color: var(--text);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    letter-spacing: var(--ls-body);
+    font-weight: var(--fw-body);
+    max-width: 100%;
+    word-break: keep-all;
+  }
+  .prose-vault > * {
+    animation: stagger 320ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+  }
+  .prose-vault > *:first-child {
+    margin-top: 0;
+  }
+
+  /* Headings */
   .prose-vault h1 {
-    @apply text-4xl font-semibold tracking-tight mt-0 mb-6 text-ink-900 dark:text-ink-50;
-    font-family: "Source Serif 4", Georgia, serif;
-    letter-spacing: -0.02em;
+    font-weight: var(--fw-h1);
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    letter-spacing: var(--ls-h1);
+    margin: 2em 0 0.4em;
+    color: var(--text-strong);
+    padding: 3px 2px;
   }
   .prose-vault h2 {
-    @apply text-2xl font-semibold tracking-tight mt-12 mb-4 text-ink-900 dark:text-ink-50;
-    border-top: 1px solid theme('colors.ink.200');
-    padding-top: 1.75rem;
-  }
-  .dark .prose-vault h2 {
-    border-top-color: theme('colors.ink.800');
+    font-weight: var(--fw-h2);
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-h2);
+    margin: 1.6em 0 0.35em;
+    color: var(--text-strong);
+    padding: 3px 2px;
   }
   .prose-vault h3 {
-    @apply text-xl font-semibold mt-8 mb-3;
+    font-weight: var(--fw-h3);
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-h3);
+    margin: 1.25em 0 0.3em;
+    color: var(--text-strong);
+    padding: 3px 2px;
   }
   .prose-vault h4 {
-    @apply text-lg font-semibold mt-6 mb-2;
+    font-weight: var(--fw-h4);
+    font-size: var(--fs-h4);
+    line-height: var(--lh-h4);
+    letter-spacing: var(--ls-h4);
+    margin: 1em 0 0.25em;
+    color: var(--text);
+    padding: 3px 2px;
   }
+
+  /* Paragraphs */
   .prose-vault p {
-    @apply my-4;
+    margin: 1px 0;
+    padding: 3px 2px;
+    min-height: calc(var(--lh-body) * 1em);
   }
+
+  /* Links */
   .prose-vault a {
-    @apply text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent transition-colors;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--text-light);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    word-wrap: break-word;
+    transition: text-decoration-color 100ms ease;
   }
+  .prose-vault a:hover {
+    text-decoration-color: var(--text);
+  }
+
   .prose-vault strong {
-    @apply font-semibold text-ink-900 dark:text-ink-50;
+    font-weight: 700;
+    color: var(--text-strong);
   }
   .prose-vault em {
-    @apply italic;
+    font-style: italic;
   }
-  .prose-vault ul, .prose-vault ol {
-    @apply my-4 pl-6;
+
+  /* Lists */
+  .prose-vault ul,
+  .prose-vault ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-  .prose-vault ul {
-    list-style-type: disc;
+  .prose-vault ul > li,
+  .prose-vault ol > li {
+    position: relative;
+    padding: 3px 2px 3px 1.75em;
+    margin: 1px 0;
+    min-height: 1.55em;
+  }
+  .prose-vault ul > li::before {
+    content: "";
+    position: absolute;
+    left: 0.85em;
+    top: 0.68em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text);
+  }
+  .prose-vault ul > li ul > li::before {
+    background: transparent;
+    border: 1.2px solid var(--text);
+  }
+  .prose-vault ul > li ul > li ul > li::before {
+    background: var(--text);
+    border-radius: 0;
   }
   .prose-vault ol {
-    list-style-type: decimal;
+    counter-reset: notion-ol;
   }
-  .prose-vault li {
-    @apply my-1.5;
+  .prose-vault ol > li {
+    counter-increment: notion-ol;
   }
-  .prose-vault li::marker {
-    color: theme('colors.ink.400');
+  .prose-vault ol > li::before {
+    content: counter(notion-ol) ".";
+    position: absolute;
+    left: 0.35em;
+    top: 3px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
   }
+  .prose-vault li > ul,
+  .prose-vault li > ol {
+    margin-top: 2px;
+  }
+
+  /* Blockquote */
   .prose-vault blockquote {
-    @apply my-6 pl-5 py-1 italic text-ink-700 dark:text-ink-300;
-    border-left: 3px solid theme('colors.accent.DEFAULT');
-    background: linear-gradient(90deg, theme('colors.ink.100/60') 0%, transparent 100%);
-    border-radius: 0 4px 4px 0;
-  }
-  .dark .prose-vault blockquote {
-    background: linear-gradient(90deg, theme('colors.ink.800/60') 0%, transparent 100%);
+    margin: 8px 0;
+    padding: 4px 16px;
+    border-left: 3px solid currentColor;
+    font-size: var(--fs-h4);
+    line-height: var(--lh-h4);
+    letter-spacing: var(--ls-h4);
+    color: var(--text-strong);
   }
   .prose-vault blockquote p {
-    @apply my-2;
+    margin: 0;
+    padding: 0;
   }
+
+  /* Inline code */
   .prose-vault code {
-    @apply font-mono text-[0.9em] px-1.5 py-0.5 rounded bg-ink-100 dark:bg-ink-800 text-ink-800 dark:text-ink-200;
+    font-family:
+      'JetBrains Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+      monospace;
+    font-size: 0.86em;
+    font-weight: 500;
+    background: var(--bg-code-inline);
+    color: var(--code-text);
+    padding: 0.16em 0.42em;
+    border-radius: 4px;
+    line-height: 1.3;
+    letter-spacing: 0;
+    word-break: break-word;
   }
+
   .prose-vault pre {
-    @apply my-6 p-5 rounded-lg overflow-x-auto text-[0.9em] leading-relaxed;
-    background: theme('colors.ink.900') !important;
-    border: 1px solid theme('colors.ink.800');
+    margin: 6px 0;
+    padding: 0;
+    background: transparent !important;
+    border: none;
+    overflow: visible;
   }
   .prose-vault pre code {
-    @apply bg-transparent p-0 text-ink-100;
-    font-size: inherit;
+    all: unset;
   }
-  .prose-vault table {
-    @apply w-full my-6 text-[0.95em] border-collapse;
-  }
-  .prose-vault thead {
-    @apply bg-ink-100 dark:bg-ink-800;
-  }
-  .prose-vault th {
-    @apply text-left font-semibold px-4 py-2.5 border-b-2 border-ink-300 dark:border-ink-700;
-  }
-  .prose-vault td {
-    @apply px-4 py-2.5 border-b border-ink-200 dark:border-ink-800;
-  }
-  .prose-vault tbody tr:nth-child(even) {
-    @apply bg-ink-50/50 dark:bg-ink-900/40;
-  }
+
+  /* HR */
   .prose-vault hr {
-    @apply my-10 border-0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, theme('colors.ink.300'), transparent);
+    border: none;
+    border-top: 1px solid var(--divider-strong);
+    margin: 10px 0;
   }
-  .dark .prose-vault hr {
-    background: linear-gradient(90deg, transparent, theme('colors.ink.700'), transparent);
-  }
+
+  /* Images */
   .prose-vault img {
-    @apply rounded-lg my-6 mx-auto shadow-sm;
+    display: block;
     max-width: 100%;
     height: auto;
+    margin: 6px 0;
+    border-radius: 4px;
   }
+
+  /* ── Tables ── */
+  .prose-vault .table-wrapper {
+    margin: 6px 0;
+    overflow-x: auto;
+    border-radius: 4px;
+  }
+  .prose-vault table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    letter-spacing: var(--ls-small);
+  }
+  .prose-vault thead tr {
+    background: var(--bg-callout);
+  }
+  .prose-vault th {
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    color: var(--text-strong);
+    vertical-align: top;
+    min-width: 120px;
+    font-size: var(--fs-small);
+    letter-spacing: var(--ls-small);
+  }
+  .prose-vault td {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    min-width: 120px;
+    transition: background 80ms ease;
+  }
+  .prose-vault tbody tr:hover td {
+    background: var(--bg-hover);
+  }
+  .prose-vault td code {
+    font-size: 88%;
+  }
+
+  /* ── Toggle (details) ── */
   .prose-vault details {
-    @apply my-5 rounded-lg overflow-hidden transition-all;
-    border: 1px solid theme('colors.ink.200');
-    background: linear-gradient(135deg, theme('colors.ink.50/80') 0%, theme('colors.ink.100/40') 100%);
-  }
-  .dark .prose-vault details {
-    border-color: theme('colors.ink.800');
-    background: linear-gradient(135deg, theme('colors.ink.900/80') 0%, theme('colors.ink.800/40') 100%);
+    margin: 1px 0;
+    padding: 3px 2px;
   }
   .prose-vault details[open] {
-    border-color: theme('colors.accent.DEFAULT');
-    box-shadow: 0 1px 3px theme('colors.accent.DEFAULT/15');
+    padding-bottom: 6px;
   }
   .prose-vault summary {
-    @apply cursor-pointer font-semibold px-5 py-3 select-none transition-colors;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
+    cursor: pointer;
+    list-style: none;
+    padding-left: 1.6em;
+    position: relative;
+    font-weight: 500;
+    user-select: none;
   }
   .prose-vault summary::-webkit-details-marker {
     display: none;
   }
   .prose-vault summary::before {
-    content: "▸";
-    display: inline-block;
-    color: theme('colors.accent.DEFAULT');
-    transition: transform 200ms ease;
-    font-size: 0.85em;
+    content: "";
+    position: absolute;
+    left: 0.35em;
+    top: 0.55em;
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--text-gray);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform 160ms cubic-bezier(0.2, 0.7, 0.3, 1);
+    transform-origin: 30% 50%;
   }
   .prose-vault details[open] > summary::before {
     transform: rotate(90deg);
+    border-left-color: var(--text);
+  }
+  .prose-vault summary:hover::before {
+    border-left-color: var(--text);
   }
   .prose-vault details > *:not(summary) {
-    @apply px-5 pb-4;
-    animation: fade-in 200ms ease-out;
+    margin-left: 1.6em;
+    margin-top: 3px;
   }
+
+  /* Task list */
   .prose-vault .task-list-item {
-    @apply list-none -ml-6;
+    padding-left: 2px;
+  }
+  .prose-vault .task-list-item::before {
+    display: none;
   }
   .prose-vault .task-list-item input[type="checkbox"] {
-    @apply mr-2 align-middle;
+    margin-right: 0.5em;
+    accent-color: var(--accent);
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
   }
 
-  .mermaid-render {
-    @apply my-6 flex justify-center items-center p-4 rounded-lg overflow-x-auto;
-    background: theme('colors.ink.50');
-    border: 1px solid theme('colors.ink.200');
-  }
-  .dark .mermaid-render {
-    background: theme('colors.ink.900');
-    border-color: theme('colors.ink.800');
-  }
-
+  /* Heading anchor */
   .heading-anchor {
-    @apply opacity-0 ml-2 text-ink-400 no-underline transition-opacity;
+    opacity: 0;
+    margin-left: 0.4em;
+    color: var(--text-light);
+    text-decoration: none !important;
+    font-weight: 400;
+    transition: opacity 120ms ease;
   }
   .prose-vault h1:hover .heading-anchor,
   .prose-vault h2:hover .heading-anchor,
@@ -182,22 +532,147 @@
   .prose-vault h4:hover .heading-anchor {
     opacity: 1;
   }
+
+  /* Mermaid */
+  .mermaid-render {
+    margin: 6px 0;
+    padding: 28px 20px;
+    background: var(--bg-codeblock);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  /* Shiki wrapper */
+  .shiki-wrapper {
+    background: var(--bg-codeblock);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .shiki-wrapper pre {
+    margin: 0 !important;
+    padding: 34px 18px 22px !important;
+    background: transparent !important;
+    font-family:
+      'JetBrains Mono', SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: var(--fs-code) !important;
+    line-height: var(--lh-code);
+    letter-spacing: var(--ls-code);
+    font-variant-ligatures: contextual;
+    overflow-x: auto;
+    tab-size: 2;
+  }
+  .shiki-wrapper code {
+    all: unset !important;
+    font-family:
+      'JetBrains Mono', SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: var(--fs-code) !important;
+  }
+  .shiki-wrapper .line {
+    display: inline-block;
+    width: 100%;
+    padding: 0 2px;
+    transition: background 80ms ease;
+  }
+  .shiki-wrapper .line:hover {
+    background: var(--bg-hover);
+  }
+
+  /* Page icon — emoji at top of page, big */
+  .page-icon {
+    font-size: 60px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 140ms ease, transform 140ms ease;
+    cursor: default;
+    user-select: none;
+  }
+  .page-icon:hover {
+    background: var(--bg-hover);
+  }
+
+  /* Cover placeholder area */
+  .cover-zone {
+    height: 48px;
+    width: 100%;
+    position: relative;
+    margin-bottom: 12px;
+  }
 }
 
 @layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: theme('colors.ink.300') transparent;
+  .text-balance {
+    text-wrap: balance;
   }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  .text-pretty {
+    text-wrap: pretty;
   }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: theme('colors.ink.300');
-    border-radius: 3px;
+
+  /* Typography utilities — mirror tailwind.config but guaranteed present */
+  .text-display {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--ls-display);
+    font-weight: var(--fw-display);
   }
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: theme('colors.ink.700');
+  .text-h1 {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+    letter-spacing: var(--ls-h1);
+    font-weight: var(--fw-h1);
+  }
+  .text-h2 {
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-h2);
+    font-weight: var(--fw-h2);
+  }
+  .text-h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-h3);
+    font-weight: var(--fw-h3);
+  }
+  .text-h4 {
+    font-size: var(--fs-h4);
+    line-height: var(--lh-h4);
+    letter-spacing: var(--ls-h4);
+    font-weight: var(--fw-h4);
+  }
+  .text-body {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    letter-spacing: var(--ls-body);
+    font-weight: var(--fw-body);
+  }
+  .text-ui {
+    font-size: var(--fs-ui);
+    line-height: var(--lh-ui);
+    letter-spacing: var(--ls-ui);
+    font-weight: var(--fw-ui);
+  }
+  .text-small {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    letter-spacing: var(--ls-small);
+    font-weight: var(--fw-small);
+  }
+  .text-micro {
+    font-size: var(--fs-micro);
+    line-height: var(--lh-micro);
+    letter-spacing: var(--ls-micro);
+    font-weight: var(--fw-micro);
+  }
+  .text-code {
+    font-size: var(--fs-code);
+    line-height: var(--lh-code);
+    letter-spacing: var(--ls-code);
+    font-weight: var(--fw-code);
   }
 }

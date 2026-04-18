@@ -104,6 +104,13 @@ export function MarkdownView({ file }: Props) {
           pre({ children }) {
             return <>{children}</>
           },
+          table({ children, ...rest }) {
+            return (
+              <div className="table-wrapper">
+                <table {...(rest as any)}>{children}</table>
+              </div>
+            )
+          },
         }}
       >
         {file.content}

@@ -1,7 +1,22 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { findFile } from '@/lib/vault-index'
+import { Link, useParams } from 'react-router-dom'
+import { findFile, getVaultName } from '@/lib/vault-index'
 import { MarkdownView } from '@/components/MarkdownView'
+
+const HUES = [
+  { bg: 'rgba(35, 131, 226, 0.14)', fg: 'rgb(35, 122, 216)' },
+  { bg: 'rgba(46, 170, 112, 0.16)', fg: 'rgb(36, 140, 92)' },
+  { bg: 'rgba(217, 145, 30, 0.18)', fg: 'rgb(171, 110, 20)' },
+  { bg: 'rgba(204, 80, 138, 0.16)', fg: 'rgb(173, 64, 114)' },
+  { bg: 'rgba(128, 90, 213, 0.16)', fg: 'rgb(109, 70, 198)' },
+  { bg: 'rgba(217, 88, 73, 0.16)', fg: 'rgb(186, 67, 55)' },
+]
+
+function hueFor(name: string) {
+  let sum = 0
+  for (let i = 0; i < name.length; i++) sum += name.charCodeAt(i)
+  return HUES[sum % HUES.length]
+}
 
 export function NotePage() {
   const { '*': path } = useParams()
@@ -23,9 +38,29 @@ export function NotePage() {
 
   if (!file) {
     return (
-      <div className="max-w-2xl mx-auto py-20 text-center">
-        <div className="font-serif text-3xl text-ink-400 mb-2">Note not found</div>
-        <div className="text-sm text-ink-500">No note exists at path <code className="font-mono text-xs">{decoded}</code></div>
+      <div className="pt-12">
+        <div
+          className="text-micro uppercase mb-3"
+          style={{ color: 'var(--text-light)' }}
+        >
+          404
+        </div>
+        <h1
+          className="text-h1 text-pretty"
+          style={{ color: 'var(--text-strong)' }}
+        >
+          Page not found
+        </h1>
+        <p className="mt-2 text-ui" style={{ color: 'var(--text-gray)' }}>
+          The page at <code className="text-small">{decoded}</code> doesn&rsquo;t exist.
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 mt-4 text-ui"
+          style={{ color: 'var(--accent)' }}
+        >
+          <span>←</span> Back to home
+        </Link>
       </div>
     )
   }
@@ -36,57 +71,151 @@ export function NotePage() {
     ? (file.frontmatter.keywords as string).split(',').map((s) => s.trim()).filter(Boolean)
     : []
 
+  const folderParts = file.folder ? file.folder.split('/').filter(Boolean) : []
+  const wordCount = file.content.split(/\s+/).filter(Boolean).length
+  const readMin = Math.max(1, Math.round(wordCount / 350))
+  const hue = hueFor(file.folder || file.title)
+  const sectionLabel = folderParts[0] ?? 'Note'
+
   return (
-    <article className="animate-fade-in">
-      <header className="mb-10 pb-6 border-b border-ink-200 dark:border-ink-800">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-400 dark:text-ink-500 mb-3 font-mono">
-          {file.folder || 'ROOT'}
-        </div>
-        <h1 className="font-serif text-[2.5rem] leading-[1.15] font-semibold tracking-tight text-ink-900 dark:text-ink-50 mb-4">
-          {file.title}
-        </h1>
+    <article>
+      {/* Breadcrumb */}
+      <nav
+        className="mb-6 text-small flex items-center gap-1 flex-wrap -mt-1"
+        style={{ color: 'var(--text-light)' }}
+      >
+        <Link
+          to="/"
+          className="px-1.5 py-[2px] rounded hover:bg-[var(--bg-hover)] transition-colors"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+        >
+          {getVaultName()}
+        </Link>
+        {folderParts.map((p, i) => (
+          <span key={i} className="flex items-center gap-1">
+            <span style={{ color: 'var(--text-light)' }}>/</span>
+            <span className="px-1.5 py-[2px]">{p}</span>
+          </span>
+        ))}
+      </nav>
+
+      {/* Cover zone */}
+      <div className="cover-zone" />
+
+      {/* Section eyebrow */}
+      <div
+        className="inline-flex items-center gap-2 px-2.5 py-[3px] mb-3 rounded-full text-micro uppercase"
+        style={{ background: hue.bg, color: hue.fg }}
+      >
+        <span
+          className="inline-block w-[5px] h-[5px] rounded-full"
+          style={{ background: 'currentColor' }}
+        />
+        {sectionLabel}
+      </div>
+
+      {/* Title */}
+      <h1
+        className="text-display text-pretty px-[2px]"
+        style={{
+          marginTop: '2px',
+          marginBottom: '14px',
+          color: 'var(--text-strong)',
+        }}
+      >
+        {file.title}
+      </h1>
+
+      {/* Property rows */}
+      <div className="mb-10 space-y-1 px-[2px]">
         {keywords.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {keywords.map((k) => (
-              <span
-                key={k}
-                className="text-[11px] font-mono px-2 py-0.5 rounded bg-ink-100 dark:bg-ink-900 text-ink-600 dark:text-ink-400"
-              >
-                {k}
-              </span>
-            ))}
-          </div>
+          <PropertyRow
+            icon={
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <circle cx="7" cy="7" r="1.4" fill="currentColor" stroke="none" />
+              </svg>
+            }
+            label="Tags"
+          >
+            <div className="flex flex-wrap gap-1.5">
+              {keywords.map((k) => (
+                <span
+                  key={k}
+                  className="px-[7px] py-[1px] rounded text-small"
+                  style={{
+                    background: 'var(--bg-callout)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {k}
+                </span>
+              ))}
+            </div>
+          </PropertyRow>
         )}
-      </header>
+        <PropertyRow
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          }
+          label="Reading"
+        >
+          <span className="text-small" style={{ color: 'var(--text)' }}>
+            {wordCount.toLocaleString()} words · ~{readMin} min read
+          </span>
+        </PropertyRow>
+        {file.folder && (
+          <PropertyRow
+            icon={
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg>
+            }
+            label="In"
+          >
+            <span className="text-small" style={{ color: 'var(--text)' }}>{file.folder}</span>
+          </PropertyRow>
+        )}
+      </div>
+
+      {/* Divider */}
+      <hr
+        style={{
+          border: 'none',
+          borderTop: '1px solid var(--divider)',
+          margin: '0 0 18px',
+        }}
+      />
+
       <MarkdownView file={file} />
-      {file.headings.length > 3 && <OnThisPage headings={file.headings.filter((h) => h.depth <= 3)} />}
     </article>
   )
 }
 
-function OnThisPage({ headings }: { headings: { depth: number; text: string; id: string }[] }) {
+function PropertyRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode
+  label: string
+  children: React.ReactNode
+}) {
   return (
-    <aside className="hidden xl:block fixed right-8 top-24 w-56 max-h-[70vh] overflow-y-auto scrollbar-thin text-xs">
-      <div className="font-semibold uppercase tracking-[0.15em] text-[10px] text-ink-400 dark:text-ink-500 mb-3">
-        On this page
+    <div className="flex items-center gap-4 py-[3px] min-h-[28px]">
+      <div
+        className="flex items-center gap-1.5 w-[110px] flex-shrink-0 text-small"
+        style={{ color: 'var(--text-light)' }}
+      >
+        {icon}
+        <span>{label}</span>
       </div>
-      <ul className="space-y-1.5 border-l border-ink-200 dark:border-ink-800">
-        {headings.map((h, i) => (
-          <li key={i} style={{ paddingLeft: `${(h.depth - 1) * 0.75 + 0.75}rem` }}>
-            <a
-              href={`#${h.id}`}
-              className="block py-0.5 text-ink-500 dark:text-ink-400 hover:text-accent transition-colors truncate"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth' })
-                history.replaceState(null, '', `#${h.id}`)
-              }}
-            >
-              {h.text}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </aside>
+      <div className="flex-1 min-w-0" style={{ color: 'var(--text-gray)' }}>
+        {children}
+      </div>
+    </div>
   )
 }

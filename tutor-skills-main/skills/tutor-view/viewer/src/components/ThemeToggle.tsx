@@ -16,19 +16,24 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setDark(!dark)}
-      aria-label="Toggle theme"
-      className="p-1.5 rounded-md hover:bg-ink-100 dark:hover:bg-ink-900 transition-colors text-ink-600 dark:text-ink-300"
+      aria-label={dark ? 'Switch to light' : 'Switch to dark'}
+      className="relative w-[32px] h-[18px] rounded-full transition-colors flex-shrink-0"
+      style={{
+        background: dark ? 'rgba(255,255,255,0.16)' : 'rgba(55, 53, 47, 0.12)',
+      }}
     >
-      {dark ? (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
+      <span
+        className="absolute top-[2px] w-[14px] h-[14px] rounded-full flex items-center justify-center text-[9px] transition-all"
+        style={{
+          left: dark ? '16px' : '2px',
+          background: dark ? '#2b2b2b' : '#ffffff',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.06)',
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transitionDuration: '220ms',
+        }}
+      >
+        {dark ? '🌙' : '☀️'}
+      </span>
     </button>
   )
 }

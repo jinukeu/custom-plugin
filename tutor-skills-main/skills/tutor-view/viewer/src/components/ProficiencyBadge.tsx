@@ -1,44 +1,61 @@
 export type ProficiencyLevel = 'weak' | 'fair' | 'good' | 'mastered' | 'unmeasured'
 
-const LEVEL_COLORS: Record<ProficiencyLevel, { bg: string; text: string; border: string; gradient: string }> = {
-  weak: {
-    bg: 'bg-red-100 dark:bg-red-950/40',
-    text: 'text-red-700 dark:text-red-300',
-    border: 'border-red-300 dark:border-red-800',
-    gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-  },
-  fair: {
-    bg: 'bg-amber-100 dark:bg-amber-950/40',
-    text: 'text-amber-800 dark:text-amber-300',
-    border: 'border-amber-300 dark:border-amber-800',
-    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-  },
-  good: {
-    bg: 'bg-emerald-100 dark:bg-emerald-950/40',
-    text: 'text-emerald-700 dark:text-emerald-300',
-    border: 'border-emerald-300 dark:border-emerald-800',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-  },
-  mastered: {
-    bg: 'bg-blue-100 dark:bg-blue-950/40',
-    text: 'text-blue-700 dark:text-blue-300',
-    border: 'border-blue-300 dark:border-blue-800',
-    gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-  },
-  unmeasured: {
-    bg: 'bg-ink-100 dark:bg-ink-900',
-    text: 'text-ink-500 dark:text-ink-400',
-    border: 'border-ink-300 dark:border-ink-700',
-    gradient: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
-  },
+interface LevelStyle {
+  bg: string
+  bgDark: string
+  text: string
+  textDark: string
+  dot: string
+  dotDark: string
+  label: string
 }
 
-const LEVEL_LABELS: Record<ProficiencyLevel, string> = {
-  weak: 'Weak',
-  fair: 'Fair',
-  good: 'Good',
-  mastered: 'Mastered',
-  unmeasured: 'Unmeasured',
+const LEVEL_STYLES: Record<ProficiencyLevel, LevelStyle> = {
+  weak: {
+    bg: '#fdecec',
+    bgDark: 'rgba(223, 80, 80, 0.22)',
+    text: '#9b2828',
+    textDark: '#ff9b9b',
+    dot: '#d64141',
+    dotDark: '#ff6565',
+    label: 'Weak',
+  },
+  fair: {
+    bg: '#fdf3dd',
+    bgDark: 'rgba(217, 145, 30, 0.22)',
+    text: '#7a4f07',
+    textDark: '#ffc970',
+    dot: '#d9911e',
+    dotDark: '#ffae3d',
+    label: 'Fair',
+  },
+  good: {
+    bg: '#ddedd8',
+    bgDark: 'rgba(68, 147, 98, 0.22)',
+    text: '#2a5c30',
+    textDark: '#8ecf9a',
+    dot: '#4a9365',
+    dotDark: '#6ec283',
+    label: 'Good',
+  },
+  mastered: {
+    bg: '#d8e5f4',
+    bgDark: 'rgba(80, 155, 230, 0.22)',
+    text: '#1a4f85',
+    textDark: '#97c4ed',
+    dot: '#2f7fc9',
+    dotDark: '#5fa5e0',
+    label: 'Mastered',
+  },
+  unmeasured: {
+    bg: '#e8e7e3',
+    bgDark: 'rgba(160, 160, 155, 0.2)',
+    text: '#5a5956',
+    textDark: '#a8a6a1',
+    dot: '#8c8a85',
+    dotDark: '#a0a0a0',
+    label: 'Unmeasured',
+  },
 }
 
 export function levelFromRate(rate: number | null): ProficiencyLevel {
@@ -56,18 +73,55 @@ interface Props {
 }
 
 export function ProficiencyBadge({ level, rate, size = 'md' }: Props) {
-  const c = LEVEL_COLORS[level]
-  const sizeClass = size === 'sm' ? 'text-[10px] px-1.5 py-0.5' : size === 'lg' ? 'text-sm px-3 py-1' : 'text-xs px-2 py-0.5'
+  const s = LEVEL_STYLES[level]
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  const sizeStyle =
+    size === 'sm'
+      ? { fontSize: 'var(--fs-micro)', height: '20px', padding: '0 8px', gap: '5px', dotSize: 5 }
+      : size === 'lg'
+      ? { fontSize: 'var(--fs-ui)', height: '26px', padding: '0 11px', gap: '7px', dotSize: 7 }
+      : { fontSize: 'var(--fs-small)', height: '22px', padding: '0 9px', gap: '6px', dotSize: 6 }
+
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border font-medium ${c.bg} ${c.text} ${c.border} ${sizeClass}`}
+      className="inline-flex items-center font-medium align-middle"
+      style={{
+        fontSize: sizeStyle.fontSize,
+        height: sizeStyle.height,
+        padding: sizeStyle.padding,
+        gap: sizeStyle.gap,
+        background: isDark ? s.bgDark : s.bg,
+        color: isDark ? s.textDark : s.text,
+        borderRadius: '4px',
+        lineHeight: 1,
+        fontWeight: 500,
+        letterSpacing: '-0.002em',
+      }}
     >
       <span
-        className="w-2 h-2 rounded-full flex-shrink-0"
-        style={{ background: c.gradient }}
+        aria-hidden
+        style={{
+          width: sizeStyle.dotSize,
+          height: sizeStyle.dotSize,
+          borderRadius: '50%',
+          background: isDark ? s.dotDark : s.dot,
+          flexShrink: 0,
+        }}
       />
-      <span>{LEVEL_LABELS[level]}</span>
-      {typeof rate === 'number' && <span className="font-mono tabular-nums">{rate}%</span>}
+      <span>{s.label}</span>
+      {typeof rate === 'number' && (
+        <span
+          style={{
+            opacity: 0.78,
+            fontVariantNumeric: 'tabular-nums',
+            fontSize: '0.92em',
+            fontWeight: 600,
+            marginLeft: '-1px',
+          }}
+        >
+          {rate}%
+        </span>
+      )}
     </span>
   )
 }
