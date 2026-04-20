@@ -31,13 +31,23 @@ if [ ! -d "$SKILL_DIR/viewer" ]; then
 fi
 ```
 
-### Step 2: Copy template to project
+### Step 2: Copy or sync template to project
+
+First-time install: copy the whole template. Subsequent runs: sync source files from the skill's `viewer/` into the existing `.tutor-view/`, preserving `node_modules/` and `dist/` so npm state and prior builds survive. This is critical — without re-sync, viewer updates shipped in a new plugin version never reach the user's project.
 
 ```bash
 if [ ! -d ".tutor-view" ]; then
   cp -R "$SKILL_DIR/viewer" ".tutor-view"
+else
+  rsync -a --delete \
+    --exclude 'node_modules' \
+    --exclude 'dist' \
+    --exclude 'tsconfig.tsbuildinfo' \
+    "$SKILL_DIR/viewer/" ".tutor-view/"
 fi
 ```
+
+If `rsync` is unavailable, fall back to copying individual source directories (`src/`, `index.html`, `package.json`, `vite.config.ts`, `tailwind.config.ts`, `postcss.config.js`, `tsconfig.json`) with `cp -R` overwrite.
 
 Ensure `.tutor-view/` is gitignored. Add to `.gitignore` if not present:
 
@@ -80,7 +90,7 @@ Produces `.tutor-view/dist/`. Can be served with any static host or `npx serve .
 
 ## Updating the viewer
 
-If this skill is reinstalled with an updated `viewer/`, ask the user before overwriting `.tutor-view/`. Preserve `node_modules/` if possible to skip reinstall.
+Step 2 already re-syncs source files on every run, so plugin updates propagate automatically without user prompting. If `package.json` dependencies changed after sync, re-run `npm install` inside `.tutor-view/`. If a prior static build exists in `.tutor-view/dist/`, re-run `npm run build` after sync to refresh it.
 
 ## Node polyfills (Buffer)
 
