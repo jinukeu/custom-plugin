@@ -175,7 +175,7 @@ function FileIcon() {
 }
 
 function FolderItem({ node, depth }: { node: VaultTreeNode; depth: number }) {
-  const [open, setOpen] = useState(depth === 0)
+  const [open, setOpen] = useState(false)
   const location = useLocation()
   const isActiveInside = location.pathname.includes(encodeURIComponent(node.path))
   const displayName = node.name.replace(/^\d+[-_]?\s*/, '')
