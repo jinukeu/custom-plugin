@@ -77,7 +77,7 @@ If the `## Concepts (N total)` seed block is missing (older vault not yet migrat
 - **Mastered (🟢)**: c / N (%)
 - **Stale (🟡)**: k
 - **Unresolved (🔴)**: u
-- **Weakest Area**: <area with lowest Mastery among non-Undersampled>
+- **Weakest Area**: areas with `unresolved ≥ 1` come first (tie-break by unresolved count desc, then Mastery asc); if none have unresolved, pick lowest Mastery among non-Undersampled
 - **Strongest Area**: <area with highest Mastery>
 ```
 
@@ -88,8 +88,8 @@ If the `## Concepts (N total)` seed block is missing (older vault not yet migrat
 | Concepts | Total count from `## Concepts (N total)` seed (or fallback) |
 | Covered | `len(rows in tracker table) / Concepts` — how many have been tested ≥ once |
 | Accuracy | `count(Status=🟢 in tracker) / len(rows in tracker)` — among tested, how many are confirmed |
-| Mastery | `count(Status=🟢 in tracker) / Concepts` — the primary skill indicator |
-| Level | Derived from Coverage + Mastery per §3 |
+| Mastery | `count(Status=🟢 in tracker) / max(Concepts, len(rows in tracker))` — primary skill indicator. `max()` is critical for 1:N mappings (a single seed concept drilled into multiple tracker rows); without it, mastery can exceed 100% and 🔴 rows get masked |
+| Level | Derived from Coverage + Mastery + unresolved count per §3 |
 
 Use "x/N (p%)" format for human readability. Display "-" for undefined ratios (e.g. `0/0`).
 
@@ -97,18 +97,21 @@ Use "x/N (p%)" format for human readability. Display "-" for undefined ratios (e
 
 ## 3. Level Badge Thresholds
 
-Let `cov = Covered%`, `mas = Mastery%`.
+Let `cov = Covered%`, `mas = Mastery%`, `unresolved = count(Status=🔴 in tracker)`.
 
 ```
-⬜ Undersampled  — cov < 50%                       (judgment deferred)
+⬜ Undersampled  — cov < 50%                                                (judgment deferred)
 🟥 Weak          — cov ≥ 50%  AND mas < 40%
 🟨 Fair          — cov ≥ 50%  AND 40% ≤ mas < 70%
-🟩 Good          — cov ≥ 70%  AND 70% ≤ mas < 90%
-🟦 Mastered      — cov ≥ 90%  AND mas ≥ 90%
+🟩 Good          — cov ≥ 70%  AND 70% ≤ mas < 90%  AND unresolved == 0
+🟦 Mastered      — cov ≥ 90%  AND mas ≥ 90%         AND unresolved == 0
 ```
+
+**Unresolved gate rationale**: even with high coverage and mastery, a single 🔴 row means there is a known, unaddressed error. Promoting such an area to 🟩/🟦 hides the signal from the Weakest Area picker and the dashboard. Areas with any 🔴 must stay at 🟨 or lower regardless of mas/cov, so learners see the red flag.
 
 Edge cases:
 - `Concepts = 0` → Level = ⬜ (no data to judge)
+- If thresholds put a row at 🟩/🟦 but `unresolved ≥ 1`, demote to 🟨.
 - If `cov ≥ 50%` but the row does not satisfy any of 🟥/🟨/🟩/🟦, use the highest tier it satisfies. For example `cov=60%, mas=72%` → not 🟩 (coverage too low) → fall back to 🟨.
 
 ---
@@ -198,7 +201,7 @@ Present AskUserQuestion with options built per:
 | Condition | Option label | Description |
 |-----------|--------------|-------------|
 | `undersampled_areas ≥ 1` | "Diagnostic" | Cover {area names joined with '/'} |
-| `weak_areas ≥ 1` | "Drill weak" | Targets {weakest area by Mastery} |
+| `weak_areas ≥ 1` | "Drill weak" | Targets Weakest Area (unresolved-first priority per §2) |
 | `stale_concepts ≥ 3` | "Drill stale" | Review {N} concepts due for refresh |
 | `all_strong AND not above` | "Hard-mode review" | Challenge mastered material |
 | always | "Choose a section" | Pick any area manually |
