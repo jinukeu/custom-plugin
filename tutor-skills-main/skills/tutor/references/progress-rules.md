@@ -43,7 +43,24 @@ This is the **spec of record** for how learning progress is computed and stored.
 - Lists **all** concepts the area is expected to cover. Tested OR not.
 - `tutor-setup` (Phase D6) and `tutor-migrate` (Phase M4 backfill) create this.
 - `tutor-sync` keeps it in sync when area structure changes.
-- `tutor` treats it as the authoritative total for Coverage calculation.
+- `tutor` treats it as the **authoritative label dictionary** — both for Coverage's denominator AND for tracker row labels.
+
+**Seed-authoritative invariant (Option A)**:
+
+Every tracker row label MUST exactly match a seed entry. `tutor` Phase 6 must attribute each graded answer to an existing seed label (or append the candidate to `### Pending Concepts` and skip the row); it must never invent a new tracker label. Only `tutor-setup` / `tutor-sync` / `tutor-migrate` may mutate the seed block.
+
+This yields `|tracker rows| ≤ |seed entries| = N` as a hard invariant, which in turn:
+- Bounds Coverage at 100% (no more "15/10 covered" drift artifacts).
+- Simplifies Mastery — with the invariant, `max(N, |tracker|) = N`, so the `max()` becomes a legacy-drift guard rather than a primary safeguard.
+- Prevents one real mistake from splitting into multiple 🔴 rows (each of which would independently trigger the §3 unresolved gate and permanently block 🟩/🟦).
+
+**Pending Concepts section**: `### Pending Concepts` is an append-only handoff queue inside `concepts/{area}.md`. `tutor` appends candidates here; `tutor-sync` reviews and promotes them into the seed block on the next run (or discards as noise). Format:
+
+```markdown
+### Pending Concepts
+
+- candidate label — why it didn't match any seed entry (one line)
+```
 
 ### Fallback for total concept count
 
@@ -88,7 +105,7 @@ If the `## Concepts (N total)` seed block is missing (older vault not yet migrat
 | Concepts | Total count from `## Concepts (N total)` seed (or fallback) |
 | Covered | `len(rows in tracker table) / Concepts` — how many have been tested ≥ once |
 | Accuracy | `count(Status=🟢 in tracker) / len(rows in tracker)` — among tested, how many are confirmed |
-| Mastery | `count(Status=🟢 in tracker) / max(Concepts, len(rows in tracker))` — primary skill indicator. `max()` is critical for 1:N mappings (a single seed concept drilled into multiple tracker rows); without it, mastery can exceed 100% and 🔴 rows get masked |
+| Mastery | `count(Status=🟢 in tracker) / max(Concepts, len(rows in tracker))` — primary skill indicator. Under the Option A seed-authoritative invariant (§1), `len(tracker) ≤ Concepts` so the `max()` collapses to `Concepts`; it remains as a guard for legacy vaults with pre-existing drift until `tutor-sync` normalizes them |
 | Level | Derived from Coverage + Mastery + unresolved count per §3 |
 
 Use "x/N (p%)" format for human readability. Display "-" for undefined ratios (e.g. `0/0`).

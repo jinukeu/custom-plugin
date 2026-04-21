@@ -118,7 +118,18 @@ Apply the transitions from [progress-rules.md §4 (Status Transitions)](referenc
   - Any → wrong → 🔴 (Streak = 0, error note updated)
 - Error notes are **never deleted** — always preserved even after return to 🟢.
 
-If a concept is new, add it to the tracker table. Do **not** modify the `## Concepts (N total)` seed block in Phase 6 — it is structural data owned by tutor-setup/tutor-sync/tutor-migrate. (If the concept is not in the seed block, that's OK — still add to tracker; Coverage formula handles it.)
+**Seed-authoritative labeling (MANDATORY)**: Every tracker row label MUST exactly match an entry in the area's `## Concepts (N total)` seed block. Phase 6 procedure for each graded answer:
+
+1. Identify which concept the question tested.
+2. Match it to a seed entry by exact string equality. Case-insensitive whitespace-normalized fallback is allowed, but the tracker row MUST use the seed's canonical spelling.
+3. If no seed entry matches:
+   - Find the **closest semantically related seed entry** and attribute the attempt to that row instead (do NOT create a new tracker label).
+   - If nothing in the seed is a reasonable match, append the candidate to a `### Pending Concepts` section at the bottom of the concept file (one bullet per candidate, with a one-line rationale) and **skip the tracker update for this answer**. Do not invent a new tracker row.
+4. Never modify the `## Concepts (N total)` seed block in Phase 6 — seed changes are owned by `tutor-setup` / `tutor-sync` / `tutor-migrate`. `Pending Concepts` is the handoff point: the next `tutor-sync` run promotes reviewed candidates into the seed.
+
+This rule prevents label drift — the same underlying concept being recorded under multiple slightly-different tracker labels — which otherwise inflates `|tracker rows|`, deflates Mastery (via `max()` in the denominator), and lets a single mistake split into multiple 🔴 rows that each independently block 🟩/🟦 via the unresolved gate.
+
+**Invariant**: After Phase 6, `|tracker rows| ≤ |seed entries|` always holds. If you detect a pre-existing violation (legacy drift), emit a one-time warning suggesting `/tutor-sync` run — do not auto-merge.
 
 Tracker row format:
 ```markdown

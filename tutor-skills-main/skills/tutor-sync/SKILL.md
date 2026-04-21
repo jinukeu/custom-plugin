@@ -197,6 +197,7 @@ Sync `*dashboard*` and `concepts/` per the case table below. Error notes are NEV
 | ✏️ source 내용 변경만 (구조 동일) | `concepts/{area}.md` 건드리지 않음. 단, concept가 source에서 완전히 제거되었으면 해당 행 Status 옆에 `⚠️ stale` 표시 (content-stale — `progress-rules.md §6`의 🟡 time-stale과는 별개 마커). | Automatic (표시만) |
 | ✏️ 새 concept note 추가 (기존 area 내) | `concepts/{area}.md`의 seed block에 새 concept 추가. Tracker는 건드리지 않음. `*dashboard*`의 `Concepts` 값 +1, `Covered`·`Mastery` 재계산. | Automatic |
 | ✏️ concept note 삭제 (기존 area 내) | `concepts/{area}.md`의 seed block에서 해당 항목 제거. Tracker에 이미 있는 행은 유지하되 Status 옆에 `⚠️ stale` 추가. `Concepts` −1. | Automatic (표시만) |
+| 📥 `### Pending Concepts` 후보 존재 | `tutor`가 Phase 6에서 seed에 매칭 안 되는 concept을 append-only로 쌓아둔 섹션. 각 후보를 검토하여: **(a) 승격** — seed block에 추가 (표현 정돈 후, 필요 시 source 재확인) / **(b) 기존 seed로 귀속** — 가장 가까운 seed 항목명을 사용자에게 안내 / **(c) 폐기** — 노이즈이거나 area 범위 밖. 결정 후 `### Pending Concepts` 섹션에서 제거. 승격 시 `Concepts` +1, dashboard 재계산. | **AskUserQuestion** (각 후보별 a/b/c 선택) |
 | `manual_edits: true` 콘텐츠 노트 | 이 Phase와 무관 (S6에서 skip 처리됨). | — |
 
 **AskUserQuestion payload** for destructive cases:

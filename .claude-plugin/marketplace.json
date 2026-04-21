@@ -13,7 +13,7 @@
       "name": "tutor-skills",
       "source": "./tutor-skills-main",
       "description": "Turn documents into a portable markdown StudyVault and quiz yourself at the concept level. Bundles /tutor-setup, /tutor, /tutor-view, /tutor-sync, and /tutor-migrate.",
-      "version": "0.4.3",
+      "version": "0.5.0",
       "category": "learning",
       "tags": ["study", "markdown", "quiz", "active-recall", "viewer"]
     }
