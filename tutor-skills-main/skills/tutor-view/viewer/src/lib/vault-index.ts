@@ -21,19 +21,20 @@ export interface VaultTreeNode {
 }
 
 // Glob is resolved relative to THIS file: src/lib/vault-index.ts
-// → project root is ../../.. and StudyVault is the sibling of .tutor-view
-const mdModules = import.meta.glob('../../../StudyVault/**/*.md', {
+// → viewer/ is ../../ and `vault` is a symlink inside viewer/ pointing to the
+//   user's StudyVault (created by the tutor-view skill entry script at runtime).
+const mdModules = import.meta.glob('../../vault/**/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>
 
 const imageModules = import.meta.glob(
-  '../../../StudyVault/**/*.{png,jpg,jpeg,gif,svg,webp,avif}',
+  '../../vault/**/*.{png,jpg,jpeg,gif,svg,webp,avif}',
   { eager: true, import: 'default' },
 ) as Record<string, string>
 
-const VAULT_PREFIX = '../../../StudyVault/'
+const VAULT_PREFIX = '../../vault/'
 
 function slugify(text: string): string {
   return text

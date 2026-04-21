@@ -20,62 +20,75 @@ Bootstraps a Vite + React viewer that renders the user's `StudyVault/` as a poli
 
 ## Bootstrap
 
-The viewer template lives in this skill's `viewer/` directory. Copy it into the user's project as `.tutor-view/` (hidden so it doesn't clutter the vault).
+The viewer runs **directly from the skill's own `viewer/` directory** — nothing is copied into the user's project. The user's `StudyVault/` is wired in via a single symlink (`viewer/vault → <user-project>/StudyVault`) that the entry script refreshes on every invocation. This keeps the user's project clean (no `.tutor-view/`, no `node_modules/` pollution, no `.gitignore` edits needed) and removes the "per-project re-sync after plugin update" footgun.
 
-### Step 1: Locate viewer template
+### Step 1: Locate the viewer directory
+
+The skill directory lives wherever Claude Code installed the plugin. Typical locations:
+
+- Marketplace-installed: `$HOME/.claude/plugins/<marketplace>/<plugin>/skills/tutor-view`
+- Local / dev install: `$HOME/.claude/skills/tutor-view`
+
+Resolve it dynamically — the viewer is always at `<skill-dir>/viewer`:
 
 ```bash
-SKILL_DIR="$HOME/.claude/skills/tutor-view"
-if [ ! -d "$SKILL_DIR/viewer" ]; then
-  echo "Viewer template missing at $SKILL_DIR/viewer"; exit 1
+# Prefer the env var Claude Code sets for the running skill, if present.
+SKILL_DIR="${CLAUDE_SKILL_DIR:-}"
+if [ -z "$SKILL_DIR" ] || [ ! -d "$SKILL_DIR/viewer" ]; then
+  # Fallback candidates — pick the first one that exists.
+  for candidate in \
+    "$HOME/.claude/skills/tutor-view" \
+    "$HOME/.claude/plugins"/*/tutor-skills-main/skills/tutor-view \
+    "$HOME/.claude/plugins"/*/*/skills/tutor-view; do
+    if [ -d "$candidate/viewer" ]; then SKILL_DIR="$candidate"; break; fi
+  done
 fi
-```
-
-### Step 2: Copy or sync template to project
-
-First-time install: copy the whole template. Subsequent runs: sync source files from the skill's `viewer/` into the existing `.tutor-view/`, preserving `node_modules/` and `dist/` so npm state and prior builds survive. This is critical — without re-sync, viewer updates shipped in a new plugin version never reach the user's project.
-
-```bash
-if [ ! -d ".tutor-view" ]; then
-  cp -R "$SKILL_DIR/viewer" ".tutor-view"
-else
-  rsync -a --delete \
-    --exclude 'node_modules' \
-    --exclude 'dist' \
-    --exclude 'tsconfig.tsbuildinfo' \
-    "$SKILL_DIR/viewer/" ".tutor-view/"
+if [ -z "$SKILL_DIR" ] || [ ! -d "$SKILL_DIR/viewer" ]; then
+  echo "Viewer not found. Reinstall the tutor-skills plugin."; exit 1
 fi
+VIEWER_DIR="$SKILL_DIR/viewer"
 ```
 
-If `rsync` is unavailable, fall back to copying individual source directories (`src/`, `index.html`, `package.json`, `vite.config.ts`, `tailwind.config.ts`, `postcss.config.js`, `tsconfig.json`) with `cp -R` overwrite.
-
-Ensure `.tutor-view/` is gitignored. Add to `.gitignore` if not present:
+### Step 2: Link the user's StudyVault into the viewer
 
 ```bash
-grep -qxF '.tutor-view/' .gitignore 2>/dev/null || echo '.tutor-view/' >> .gitignore
+PROJECT_DIR="$(pwd)"
+VAULT_PATH="$PROJECT_DIR/StudyVault"
+if [ ! -d "$VAULT_PATH" ]; then
+  echo "StudyVault not found at $VAULT_PATH. Run /tutor-setup first."; exit 1
+fi
+
+# Atomic symlink refresh. Points to the current project's StudyVault — last
+# /tutor-view invocation wins if multiple vaults exist on the machine.
+ln -sfn "$VAULT_PATH" "$VIEWER_DIR/vault"
 ```
 
-### Step 3: Install dependencies (first run only)
+> **Why symlink, not copy**: Vite's `import.meta.glob` resolves at build time with a static literal path. We can't inject a vault path at runtime, so a fixed-name symlink (`viewer/vault`) is the contract.
+
+### Step 3: Install dependencies (once per plugin version)
 
 ```bash
-cd .tutor-view
-if [ ! -d node_modules ]; then
+cd "$VIEWER_DIR"
+if [ ! -d node_modules ] || [ "package.json" -nt "node_modules/.package-lock.json" ]; then
   npm install
 fi
 ```
 
+`node_modules/` lives inside the skill directory. It's gitignored at the plugin level and not touched by plugin updates (Claude Code's sync only replaces tracked source files — untracked `node_modules/` and `dist/` survive). When `package.json` changes (plugin version bump with new deps), the `-nt` check triggers a reinstall.
+
 ### Step 4: Start dev server
 
 ```bash
+cd "$VIEWER_DIR"
 npm run dev
 ```
 
-This opens `http://127.0.0.1:5173` in the default browser with HMR enabled.
+Default URL: `http://127.0.0.1:5173` with HMR.
 
-The viewer resolves the vault via a fixed relative glob (`../StudyVault/**/*.md` from the `.tutor-view/` directory). Therefore **StudyVault MUST be a sibling of `.tutor-view/`** at the user's project root. If the user's vault has a different name or location, create a symlink:
+If the user's vault directory is named something other than `StudyVault`, have them symlink it before invoking:
 
 ```bash
-ln -s path/to/actual-vault StudyVault
+ln -sfn path/to/actual-vault StudyVault   # in the user's project root
 ```
 
 ### Alternative: static build
@@ -83,14 +96,24 @@ ln -s path/to/actual-vault StudyVault
 If the user passes `--build` or asks for a deployable site:
 
 ```bash
-npm run build
+cd "$VIEWER_DIR" && npm run build
 ```
 
-Produces `.tutor-view/dist/`. Can be served with any static host or `npx serve .tutor-view/dist`.
+Produces `$VIEWER_DIR/dist/`. Since the build bakes in the currently-symlinked vault's contents, copy `dist/` out before the next `/tutor-view` invocation on a different project, or it'll be overwritten:
+
+```bash
+cp -R "$VIEWER_DIR/dist" "$PROJECT_DIR/tutor-view-dist"
+```
+
+Then serve with `npx serve tutor-view-dist`.
+
+## Concurrent projects
+
+The viewer is **single-tenant per machine**: the `viewer/vault` symlink points to one vault at a time. Running `/tutor-view` in project B while the dev server for project A is live will repoint the symlink, which HMR then picks up — effectively switching the open browser tab to project B's vault. If the user needs two vaults open simultaneously, they should open the first in a static build (`npm run build` → `npx serve dist`) and the second with the dev server.
 
 ## Updating the viewer
 
-Step 2 already re-syncs source files on every run, so plugin updates propagate automatically without user prompting. If `package.json` dependencies changed after sync, re-run `npm install` inside `.tutor-view/`. If a prior static build exists in `.tutor-view/dist/`, re-run `npm run build` after sync to refresh it.
+Plugin updates replace source files in `$SKILL_DIR/viewer/` automatically. `node_modules/` and `dist/` are preserved (they're untracked). Step 3's `-nt` check handles dependency changes. No per-project sync needed — this is the primary win of running from the skill directory.
 
 ## Node polyfills (Buffer)
 
