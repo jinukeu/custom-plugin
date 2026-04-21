@@ -83,7 +83,7 @@ cd "$VIEWER_DIR"
 npm run dev
 ```
 
-Default URL: `http://127.0.0.1:5173` with HMR.
+Default URL: `http://127.0.0.1:5273` with HMR. (Static preview uses `5274`.)
 
 If the user's vault directory is named something other than `StudyVault`, have them symlink it before invoking:
 
