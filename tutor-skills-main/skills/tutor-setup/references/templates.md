@@ -4,7 +4,7 @@
 
 ```
 StudyVault/
-  00-Dashboard/          # MOC + cheat sheets + Exam Traps
+  00-Dashboard/          # MOC + Quick Reference + Exam Traps
   01-<Topic1>/           # Concept notes per domain
   02-<Topic2>/
   ...
@@ -13,7 +13,7 @@ StudyVault/
 
 ## Learning Dashboard Template (`*dashboard*`)
 
-> Distinct from the MOC below. This file is the **learning progress** dashboard used by `tutor`. Column schema is the spec of record — see [../../tutor/references/progress-rules.md §2, §3](../../tutor/references/progress-rules.md).
+> Distinct from MOC. Spec of record: [../../tutor/references/progress-rules.md §2, §3](../../tutor/references/progress-rules.md).
 
 ```markdown
 # Learning Dashboard
@@ -27,7 +27,6 @@ StudyVault/
 | Area | Concepts | Covered | Accuracy | Mastery | Level | Details |
 |------|----------|---------|----------|---------|-------|---------|
 | <area-1> | N | 0/N | - | 0/N | ⬜ Undersampled | [details](../concepts/<area-1>.md) |
-| <area-2> | M | 0/M | - | 0/M | ⬜ Undersampled | [details](../concepts/<area-2>.md) |
 | **Total** | **sum** | **0/sum** | **-** | **0/sum** | ⬜ Undersampled | |
 
 > ⬜ Undersampled (cov<50%) · 🟥 Weak (mas<40%) · 🟨 Fair (40-69%) · 🟩 Good (70-89%) · 🟦 Mastered (90-100%)
@@ -45,11 +44,11 @@ StudyVault/
 - **Strongest Area**: -
 ```
 
-All areas start at ⬜ Undersampled / 0 Mastery. `tutor` fills them as the user takes quizzes.
+All areas start at ⬜ Undersampled / 0 Mastery. `tutor` fills as quizzes happen.
 
 ## Concept Tracker Template (`concepts/{area}.md`)
 
-One per area. Created at vault-build time with the seed block populated from Phase D2 concept identification. Tracker table starts empty; `tutor` populates it.
+One per area. Built with seed populated from Phase D2 (NOT just file count). Tracker starts empty.
 
 ```markdown
 # {Area Name} — Concept Tracker
@@ -59,7 +58,6 @@ One per area. Created at vault-build time with the seed block populated from Pha
 - concept 1
 - concept 2
 - ...
-- concept N
 
 | Concept | Attempts | Correct | Streak | Last Tested | Status |
 |---------|----------|---------|--------|-------------|--------|
@@ -69,9 +67,9 @@ One per area. Created at vault-build time with the seed block populated from Pha
 (added as concepts are missed)
 ```
 
-- **Seed block**: MANDATORY. List every concept the area covers (based on Phase D2 content analysis, not just file count). Used as the authoritative total for Coverage calculation. Keep labels short and human-readable.
-- **Tracker table**: starts empty. `tutor` adds rows on first test of each concept. Column order is fixed (Concept / Attempts / Correct / Streak / Last Tested / Status).
-- **Error Notes**: header exists from creation; entries accumulate as concepts are missed. Entries are never deleted.
+- **Seed block**: MANDATORY. Every concept the area covers (Equal Depth Rule). Authoritative total for Coverage. Short, human-readable labels.
+- **Tracker**: starts empty; `tutor` adds rows on first test. Column order fixed.
+- **Error Notes**: header from creation; entries never deleted.
 
 ## Dashboard MOC Template
 
@@ -122,11 +120,10 @@ keywords: MOC, study map, dashboard, <subject>
 
 ## Quick Reference Template
 
-- **Every section heading MUST include `→ [Concept Note](relative/path.md)` link**
-- One-line summary table per concept/term
-- Grouped by category
-- All key formulas and condition expressions
-- "Must-know formulas/patterns" section at bottom with `→ [Note](relative/path.md)` links
+- Every section heading MUST include `→ [Concept Note](relative/path.md)` link.
+- One-line summary table per concept/term, grouped by category.
+- All key formulas + condition expressions.
+- "Must-know formulas/patterns" section at bottom with `→ [Note](relative/path.md)` links.
 
 ## Exam Traps Template
 
@@ -137,9 +134,7 @@ keywords: exam traps, weak areas, common mistakes, dashboard
 
 # Exam Traps (시험 함정 포인트)
 
-> **Warning:** 이 노트의 목적
->
-> 시험에서 자주 틀리거나 헷갈리는 포인트만 모은 **오답/함정 노트**입니다.
+> **Warning:** 시험에서 자주 틀리거나 헷갈리는 포인트만 모은 **오답/함정 노트**입니다.
 
 ## <Topic 1>
 
@@ -156,7 +151,7 @@ keywords: exam traps, weak areas, common mistakes, dashboard
 ---
 
 ## Related
-- [MOC - Subject](moc.md) → Weak Areas 섹션
+- [MOC](moc.md) → Weak Areas
 - [빠른 참조](quick-reference.md)
 ```
 
@@ -166,7 +161,7 @@ keywords: exam traps, weak areas, common mistakes, dashboard
 ---
 source_pdf: <filename.pdf — MUST match verified Phase 1 mapping>
 part: <part number>
-keywords: <3-5 English keywords>, <tag-from-registry>, <tag-from-registry>
+keywords: <3-5 English keywords>, <tag-from-registry>
 ---
 
 # <Title> (<Importance: ★~★★★>)
@@ -192,26 +187,13 @@ Concise explanation (3-5 lines max).
 - [Other Note 1](other-note.md)
 ```
 
-### Formatting Rules
+### Concept Note Rules
 
-- Relative-path markdown links `[text](path.md)` for all cross-references
-- Plain blockquote callouts with bold labels:
-  - `> **Tip:**` for helpful suggestions
-  - `> **Important:**` for must-know information
-  - `> **Warning:**` for pitfalls
-- Comparison tables over prose; bold for key vocabulary
-
-### Visualization Rule
-
-Include ASCII diagrams when applicable:
-- Processes/stages → timeline or sequence diagram
-- Signal/data flow → flow DAG
-- Strategy comparisons → quantitative table
-- State-based behavior → state transition diagram
-
-### Simplification-with-Exceptions Rule
-
-General statements must check for edge cases — add `> **Warning:**` blockquote or link to exception details.
+- **Links**: relative-path markdown `[text](path.md)`.
+- **Callouts**: `> **Tip:**` (helpful) / `> **Important:**` (must-know) / `> **Warning:**` (pitfall).
+- **Format**: comparison tables > prose; **bold** for key vocabulary.
+- **Visualization**: ASCII diagrams when applicable — process/stages → timeline; data flow → DAG; strategy comparison → table; state behavior → state transitions.
+- **Simplification-with-exceptions**: general statements must note edge cases (`> **Warning:**` or link to exception).
 
 ## Practice Question Template
 
@@ -250,27 +232,7 @@ Answer text here with explanation.
 
 ---
 
-## Question 2 - <Short Label> [application]
-> Given this scenario, what would you do?
-
-<details>
-<summary>정답 보기</summary>
-
-Answer with applied reasoning.
-
-</details>
-
----
-
-## Question 3 - <Short Label> [analysis]
-> Compare X and Y in this context. Which is better and why?
-
-<details>
-<summary>정답 보기</summary>
-
-Comparative analysis answer.
-
-</details>
+(Repeat with `[application]` and `[analysis]` tagged questions for diversity.)
 
 ---
 
@@ -286,10 +248,9 @@ Comparative analysis answer.
 
 ### Practice Question Rules
 
-- Every topic folder MUST have a practice file (8+ questions)
-- **Answer hiding**: ALL answers wrapped in `<details><summary>정답 보기</summary>…</details>`
-- **Patterns**: `<details><summary>핵심 패턴 (클릭하여 보기)</summary>` / `<details><summary>패턴 요약 (클릭하여 보기)</summary>` (MANDATORY)
-- **Question type diversity**: tag `[recall]`, `[application]`, `[analysis]` in heading
-  - ≥60% recall, ≥20% application, ≥2 analysis per file
-- Scenario in one `>` blockquote line; answer 1-3 lines inside `<details>`
-- `## Related Concepts` with relative-path links (MANDATORY)
+- Every topic folder MUST have a practice file (8+ questions).
+- **Answer hiding**: ALL answers wrapped in `<details><summary>정답 보기</summary>…</details>`.
+- **Patterns**: `<details><summary>핵심 패턴 (클릭하여 보기)</summary>` (top) and `<details><summary>패턴 요약 (클릭하여 보기)</summary>` (bottom).
+- **Type diversity** (tag in heading: `[recall]` / `[application]` / `[analysis]`): ≥60% recall, ≥20% application, ≥2 analysis per file.
+- Scenario in one `>` blockquote; answer 1-3 lines inside `<details>`.
+- `## Related Concepts` with relative-path links (MANDATORY).
