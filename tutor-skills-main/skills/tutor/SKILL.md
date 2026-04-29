@@ -1,9 +1,9 @@
 ---
 name: tutor
 description: >
-  Interactive quiz tutor for markdown StudyVault learning. Use when the user wants to take a diagnostic
-  assessment, study/review specific sections, drill weak areas, or check their progress dashboard. Triggers:
-  "quiz me", "test me", "let's study", "/tutor", "학습", "퀴즈", "평가".
+  Interactive quiz tutor for markdown StudyVault learning. Args: `diagnostic` (진단평가), `drill-weak`
+  (약점 드릴), `drill-stale` (스테일 복습), `section <area>` (섹션 지정), `hard` (하드 복습). Without args:
+  shows session picker. Triggers: "quiz me", "test me", "let's study", "/tutor", "학습", "퀴즈", "평가".
 ---
 
 # Tutor Skill
@@ -31,6 +31,25 @@ StudyVault/
 
 Detect user's language from their message → `{LANG}`. All output and file content in `{LANG}`.
 
+### Phase 0.5: Parse Arguments
+
+If skill args were provided (user typed `/tutor <arg>`), map to session type:
+
+| Arg | Session |
+|-----|---------|
+| `diagnostic` / `진단` | Diagnostic |
+| `drill-weak` / `weak` / `약점` | Drill weak |
+| `drill-stale` / `stale` / `스테일` | Drill stale |
+| `section <area>` / `섹션 <area>` | Choose a section (area = next token after keyword) |
+| `hard` / `hard-mode` / `하드` | Hard-mode review |
+| `help` / `?` | Print available arguments table and stop |
+
+- **Recognized arg** → set `session_type` (and `target_area` if applicable), then **skip Phase 2** and proceed directly to Phase 2.5.
+- **Unrecognized arg** → print the table above with a note ("알 수 없는 인수입니다. 사용 가능한 인수:"), then fall through to Phase 2 normally.
+- **No args** → proceed to Phase 1 and Phase 2 normally.
+
+For `section <area>`, if `target_area` is specified in args but not found in Phase 1's directory list, ask the user to pick from available areas before continuing.
+
 ### Phase 1: Discover Vault (lightweight)
 
 Path discovery only — **do not read `concepts/*.md` here**. Defer reads to Phase 2.5 / Phase 6.
@@ -41,6 +60,8 @@ Path discovery only — **do not read `concepts/*.md` here**. Defer reads to Pha
 4. Do **not** read dashboard or concept files yet.
 
 ### Phase 2: Ask Session Type (fixed options)
+
+**Skip this phase if `session_type` was set in Phase 0.5.**
 
 **MANDATORY**: Use AskUserQuestion with the **fixed option set below** — do not pre-read concepts/dashboard to build context-aware labels. User picks intent first; Phase 2.5 loads only what that intent needs.
 
