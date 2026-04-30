@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+
+# Viewer template shouldn't ship build artifacts or runtime state
+skills/view/viewer/node_modules/
+skills/view/viewer/dist/
+skills/view/viewer/.vite/
+skills/view/viewer/tsconfig.tsbuildinfo
+# Runtime symlink pointing to the user's StudyVault — created per invocation
+skills/view/viewer/vault

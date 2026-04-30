@@ -27,18 +27,18 @@ Refresh or remove the marketplace later with:
 
 | Plugin | Description |
 |--------|-------------|
-| [`tutor-skills`](./tutor-skills-main/) | Turn documents into a portable markdown StudyVault, quiz yourself at the concept level, and browse it in a local web viewer. Bundles `/tutor-setup`, `/tutor`, and `/tutor-view`. |
+| [`tutor`](./tutor/) | Turn documents into a portable markdown StudyVault, quiz yourself at the concept level, and browse it in a local web viewer. Bundles `/setup`, `/tutor`, and `/view`. |
 
 ### Install a plugin
 
 ```
-/plugin install tutor-skills@custom-plugin
+/plugin install tutor@custom-plugin
 ```
 
 ### Uninstall a plugin
 
 ```
-/plugin uninstall tutor-skills@custom-plugin
+/plugin uninstall tutor@custom-plugin
 ```
 
 ## Repository layout
@@ -47,12 +47,12 @@ Refresh or remove the marketplace later with:
 custom-plugin/
 ├── .claude-plugin/
 │   └── marketplace.json       # Marketplace manifest (name, owner, plugin list)
-└── tutor-skills-main/         # tutor-skills plugin source
+└── tutor/                    # tutor plugin source
     ├── .claude-plugin/        # (optional, per-plugin manifest)
     ├── skills/
-    │   ├── tutor-setup/
+    │   ├── setup/
     │   ├── tutor/
-    │   └── tutor-view/
+    │   └── view/
     ├── README.md
     └── LICENSE
 ```
