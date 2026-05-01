@@ -28,7 +28,7 @@ function getMermaidConfig(dark: boolean) {
           secondaryColor: '#f1f1ef',
           tertiaryColor: '#e3e2e0',
         },
-    securityLevel: 'strict' as const,
+    securityLevel: 'loose' as const,
   }
 }
 
