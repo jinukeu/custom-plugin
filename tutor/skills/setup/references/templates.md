@@ -174,12 +174,15 @@ keywords: <3-5 English keywords>, <tag-from-registry>
 |------|-----------|
 | A    | ...       |
 
-## <Concept 1> [definition|mechanism|process|tradeoff|formula|structure]
+## <Concept 1> [definition|mechanism|process|tradeoff|formula|structure|classification]
 
-### Definition
+### Definition (정의)
 One-sentence definition + 1-2 lines on why it matters (2-4 lines total).
 
-### Principle / Derivation / Mechanism
+### Intuition / Analogy (직관·비유)  ← MANDATORY
+2-5 lines that answer "왜 이게 이렇게 생겼는가?" before any formalism. Use a real-world analogy, a degenerate case ("if N=1 …"), or a "before/after this concept existed" framing. The reader should feel the *shape* of the idea here, not memorize a definition.
+
+### Principle / Derivation / Mechanism (원리)
 No length limit. Explain the "why" thoroughly so the learner truly understands.
 - Causal relationships, mechanisms, formula derivations
 - Tables compress facts, prose explains causality/principle (split roles)
@@ -203,12 +206,19 @@ Or ASCII:
 └─────────┘                └─────────┘
 ​```
 
-### Example (1 or more)
-- Input: ... / Output: ...
-- Scenario: include concrete numbers and context
+### Examples (예시 — ≥2 required)
+Provide **at least two** concrete examples with different *shape* (don't just change numbers in the same template).
+- Example 1 — Input: ... / Output: ... / Why this output: ...
+- Example 2 — A degenerate, edge, or contrasting scenario with concrete numbers/context.
 
-### Exceptions / Edge Cases
+### Common Misconceptions (자주 오해하는 점)  ← MANDATORY
+2-4 bullets, each in the form **"X라고 생각하기 쉽지만 실제로는 Y — 이유는 Z"**. Cover at least one mix-up with a sibling concept and one wrong intuition that the formal definition does NOT rule out.
+
+### Exceptions / Edge Cases (선택)
 > **Warning:** conditions under which the generalization breaks, and what happens then.
+
+### Application / When to use (선택 — comparison/tradeoff/decision concepts에 권장)
+실제로 이 개념을 꺼내 쓰는 상황 + 비슷한 개념 대신 이걸 골라야 하는 신호.
 
 ---
 
@@ -217,20 +227,26 @@ Or ASCII:
 |-------------------|--------|
 | "keyword X" | **Solution Y** |
 
-## Related Notes
-- [Other Note 1](other-note.md)
+## Related Notes  ← role-labeled (MANDATORY)
+- **선수 개념 (prerequisite)**: [Concept A](../01-Topic/a.md) — why it must come first
+- **관련 개념 (sibling)**: [Concept B](b.md) — how they differ
+- **이 개념을 쓰는 곳 (downstream)**: [Concept C](../03-Topic/c.md) — what builds on this
 ```
 
 ### Concept Note Rules
 
 - **Links**: relative-path markdown `[text](path.md)`.
 - **Callouts**: `> **Tip:**` (helpful) / `> **Important:**` (must-know) / `> **Warning:**` (pitfall).
-- **Depth-by-type**: body length is determined by content type. Definitions stay short; mechanism / process / derivation types get as much room as needed. **No line-count limit.**
+- **Density floor (MANDATORY)**: every concept MUST contain Definition, Intuition/Analogy, Principle/Mechanism, ≥2 Examples, and Common Misconceptions sections. Skip ONLY if genuinely inapplicable; state the reason inline.
+- **Dynamic sectioning**: extra sections (Visualization, Exceptions, Application, Comparison) are chosen by concept type — do NOT add empty headings to satisfy a template, and do NOT omit the 5 mandatory sections to keep things short.
+- **Depth-by-type**: body length is determined by content type. Definitions stay short; mechanism / process / derivation types get as much room as needed. **No line-count limit.** As a calibration: if your note for a non-trivial mechanism concept is under ~40 lines of body (excluding frontmatter, headings, links), it is almost certainly under-spec.
 - **Format**: facts in tables, causality/principle in prose, visual patterns in diagrams — split by role.
 - **Visualization (recommended)**: for mechanism / process / tradeoff / structure types, prefer visualization. mermaid first, ASCII fallback. Not required, but include whenever it helps. See §Visualization Guide.
-- **Example required**: every concept must include at least one concrete input/output, number, or scenario.
+- **Examples ≥2**: each example must have a *different shape* (not just different numbers in the same template). Concrete input/output, numbers, or scenario.
+- **Misconceptions ≥2**: each in "X로 보이지만 실은 Y — 이유 Z" form; at least one mix-up with a sibling concept.
+- **Related Notes role-labeled**: prerequisite / sibling / downstream — labeled, not a flat list.
 - **Simplification-with-exceptions**: general statements must note edge cases (`> **Warning:**` or link to exception).
-- **Self-test**: ask "can I solve an analysis-type quiz item from this note alone?" — if not, expand.
+- **Self-test**: ask "can I solve an analysis-type quiz item from this note alone, AND could I explain this to someone who only knows the prerequisites?" — if not, expand.
 
 ## Visualization Guide
 

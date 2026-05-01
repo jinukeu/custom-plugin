@@ -22,13 +22,17 @@ Verify every item before declaring completion. Fix and re-verify on any failure.
 - [ ] Simplified statements include exception caveats
 
 ## Textbook-Level Depth
-- [ ] Every concept has both a "Definition" and a "Principle / Mechanism / Derivation" body (not just a list of facts)
-- [ ] Every concept has at least one concrete example (input/output, numbers, scenario)
+- [ ] Every concept has all 5 mandatory sections: Definition / Intuition·Analogy / Principle·Mechanism / ≥2 Examples / Common Misconceptions
+- [ ] Intuition·Analogy section answers "why does it look like this" before formalism (analogy, degenerate case, or before/after framing)
+- [ ] Examples ≥2 with *different shape* (not numeric variants of one template); each has concrete input/output or scenario
+- [ ] Common Misconceptions ≥2, each in "X로 보이지만 실은 Y — 이유 Z" form; ≥1 mix-up with a sibling concept covered
+- [ ] `## Related Notes` role-labeled: prerequisite (선수) / sibling (관련) / downstream (쓰이는 곳)
 - [ ] Mechanism / process / tradeoff / structure types attempt visualization — mermaid first, ASCII fallback, table/prose if neither fits
 - [ ] Mermaid code blocks pass syntax check (```mermaid fence, no node-ID collisions, no color dependence)
 - [ ] ASCII diagrams ≤ 80 characters wide, boxes and arrows aligned
 - [ ] Tables compress facts, prose explains causality/principle (split roles)
-- [ ] Self-test: note alone is sufficient to solve an analysis-type quiz item
+- [ ] Non-trivial mechanism concept body ≥ ~40 lines (calibration; not a hard cap)
+- [ ] Self-test: note alone is sufficient to solve an analysis-type quiz item AND to explain to a learner who knows only the prerequisites
 
 ## Dashboard
 - [ ] MOC: Topic Map + Practice Notes + Study Tools + Keyword Index + Weak Areas + Non-core Policy

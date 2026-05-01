@@ -3,7 +3,7 @@ name: setup
 description: >
   Transforms knowledge sources (PDF/text/web) into a portable markdown StudyVault with structured notes,
   dashboards, and practice questions for active recall.
-argument-hint: "[source-path-or-url]"
+argument-hint: "[source-path-or-url] | --enrich"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 ---
 
@@ -70,17 +70,32 @@ Also create the **learning progress dashboard** (`*dashboard*` at `StudyVault/` 
 
 ### Phase D6: Concept Notes — Textbook-Level Depth
 
-Goal: **the note alone must be sufficient to learn the topic without the source PDF**.
+Goal: **the note alone must be sufficient to learn the topic without the source PDF**. A reader who has never seen the source should finish the note feeling they understood not just *what* but *why* and *when* the concept applies.
 
 Per [templates.md](references/templates.md). Key rules:
 - YAML frontmatter: `source_pdf`, `part`, `keywords` (MANDATORY).
 - `source_pdf` MUST match verified Phase D1 mapping — never guess from filename. If unavailable: `source_pdf: 원문 미보유`.
 - **Depth-by-type**: body length is determined by content type — definitions stay short, mechanisms / processes / derivations get as much space as needed. **No line-count limit.**
+- **Density floor (MANDATORY)**: concept body MUST cover, at minimum, *all five* of: ① one-sentence definition, ② intuition/analogy (왜 이렇게 생겼는지 직관), ③ principle/mechanism/derivation, ④ ≥2 concrete examples with numbers or scenarios, ⑤ common misconceptions (자주 오해하는 점) — each its own subsection. Sections beyond these (visualization, exceptions, application, comparison, history) are added *as the topic demands*, not as a fixed template. Skip a required section ONLY if it is genuinely inapplicable (e.g. pure definition with no mechanism); record the reason in the `Principle` body.
+- **Dynamic sectioning**: choose extra sections based on concept type — mechanism → visualization + edge cases; comparison → tradeoff table + sibling links; formula → derivation + dimensional analysis; classification → enumeration with exemplars per class. Do NOT pad with empty headings.
+- **Connection (MANDATORY)**: every concept note MUST end with `## Related Notes` containing **prerequisite (선수)**, **sibling (관련)**, and **downstream (이 개념을 쓰는 곳)** links — labeled by role, not just a flat list. At least one link per role if any exist in the Vault.
 - **Visualization (recommended)**: for mechanism / process / tradeoff / structure types, prefer visualization. **mermaid first, ASCII as fallback** — if neither conveys meaning well, fall back to tables or prose. Not strictly required, but include whenever it helps. See [templates.md §Visualization Guide].
 - **Tables compress facts; prose explains the "why"** — split roles accordingly.
-- **At least one example** per concept (concrete inputs/outputs, numbers, scenarios).
 - **Simplification-with-exceptions**: general statements must note edge cases.
-- **Self-test**: after writing, ask "can I solve an analysis-type quiz item from this note alone?". If not, expand the body or visualization.
+- **Self-test**: after writing, ask "can I solve an analysis-type quiz item from this note alone, AND could I explain it to someone with only the prerequisite concepts?". If not, expand the body, intuition, or examples.
+
+### Phase D6.5: Enrichment Mode (`--enrich`)
+
+Triggered when `/setup` is invoked with `--enrich` (no source argument required). Skip Phases D1–D5 and D7+ — operate ONLY on the existing `StudyVault/`.
+
+1. **Scan**: walk `StudyVault/**/*.md` excluding `00-Dashboard/`, `concepts/`, practice files, and the learning dashboard.
+2. **Score each concept note** against the Phase D6 *density floor*:
+   - Missing any of the 5 required subsections (definition / intuition / principle / ≥2 examples / misconceptions) → **under-spec**.
+   - Missing role-labeled `## Related Notes` (prerequisite/sibling/downstream) → **under-spec**.
+   - Body length below 2× the average of compliant notes in the same area, AND missing ≥1 required subsection → **under-spec**.
+3. **Report**: print the under-spec list with reasons, ask the user to confirm before rewriting.
+4. **Regenerate** each confirmed note: re-read its `source_pdf` page range (re-extract with `pdftotext` if needed), preserve YAML frontmatter and `source_pdf`/`part` exactly, rewrite body to satisfy the density floor, and add role-labeled `## Related Notes` resolved from sibling note titles.
+5. **Do NOT** touch keywords registry, MOC, dashboards, or practice files — enrichment is body-only. After completion, instruct the user to run `/setup` (no flag) for a full self-review pass if structural changes are desired.
 
 Also create **per-area concept trackers** at `StudyVault/concepts/{area}.md` per "Concept Tracker Template" in [templates.md](references/templates.md):
 - **Concepts seed block** (`## Concepts (N total)`): populate at **section granularity, not file granularity**. For each concept note (`NN-<area>/*.md`) in the area, emit **one seed entry per `##` section heading inside the file** — a single `.md` file MUST yield multiple seed entries when it contains multiple `##` sections. Exclude boilerplate sections (`Overview Table`, `Exam/Test Patterns`, `Related Notes`, `Related Concepts`, `시험 빈출 패턴`, `관련 노트`). Label format: `<file-basename> · <section-title>` (or just `<section-title>` if globally unique within the area). Practice files are excluded entirely. This is the authoritative total for Coverage downstream.
