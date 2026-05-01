@@ -22,7 +22,8 @@ Step-by-step concept tutor that walks the learner through one concept note `##` 
 - One `##` section = one lesson step.
 - Top-down: sections are taught in the order they appear in the file.
 - Lesson is a **read-then-write** flow per step: explain the section → ask the user → either advance or branch into a supplementary section.
-- The lesson never modifies sections it has already taught; it only **appends** new `##` sections at the end of the file when the user asks a question.
+- The lesson never modifies sections it has already taught; it only **appends** new `##` sections at the end of the file when the user explicitly confirms understanding of a Q&A.
+- **Deferred Q&A persistence**: questions during a step do NOT mutate the source note immediately. Q&A pairs accumulate in an in-memory pending buffer and are flushed to the note as a single batched edit only when the user explicitly confirms understanding (advances). See [lesson-rules.md §Pending Q&A Buffer](references/lesson-rules.md).
 
 ## File Structure
 
@@ -111,26 +112,29 @@ If ambiguous → treat as Question (safer default — no premature progress).
 
 #### L4.3a — On Confirmation
 
-Update tracker per [lesson-rules.md §Tracker Updates on Confirmation](references/lesson-rules.md):
-- If no row exists for this step's `seed_label` → append: `| {seed_label} | 0 | 0 | 0 | {today} | 📘 |`.
-- If row exists with `📘` → update `Last Tested = today`.
-- If row exists with `🔴` / `🟡` / `🟢` → **do not modify** (lesson does not overwrite quiz state per progress-rules.md §6).
+This is the only point where the source note is mutated. Perform in order (per [lesson-rules.md §Pending Q&A Buffer](references/lesson-rules.md) and §Tracker Updates on Confirmation):
 
-Persist the tracker file. Advance to next step.
+1. **Flush pending Q&A buffer** (if non-empty for this step):
+   - For each buffered Q&A, append a `## … [supplement]` section to the source note per [lesson-rules.md §Q&A Section Template](references/lesson-rules.md).
+   - For each, append `- <file-basename> · {short topic} [supplement]` to `## Concepts (N total)` and increment `N total` accordingly.
+   - For each, append a `📘` row to the tracker.
+   - Bundle related Q&As into a single Write/Edit pass on the source note (one mtime change per confirmation).
+   - Clear the pending buffer for this step.
+2. **Update tracker for the step itself**:
+   - If no row exists for this step's `seed_label` → append: `| {seed_label} | 0 | 0 | 0 | {today} | 📘 |`.
+   - If row exists with `📘` → update `Last Tested = today`.
+   - If row exists with `🔴` / `🟡` / `🟢` → **do not modify** (lesson does not overwrite quiz state per progress-rules.md §6).
+3. Persist the tracker file. Advance to next step.
 
 #### L4.3b — On Question
 
-1. **Answer in chat**: explain in `{LANG}`, textbook-grade depth (per `setup`'s Equal Depth Rule). Include mermaid/ASCII diagram if it clarifies (recommended, not required).
-2. **Persist as a new `##` section appended to the source note**:
-   - Heading: `## {short topic derived from the question} [supplement]`
-   - Body: the same answer, formatted per setup's Concept Note Template (Definition / Principle / Visualization / Example / Exceptions sub-blocks where applicable).
-   - Append at end of file (after all existing `##` sections, before any trailing whitespace).
-   - Exact format in [lesson-rules.md §Q&A Section Template](references/lesson-rules.md).
-3. **Update seed block**: append `- <file-basename> · {short topic} [supplement]` to `## Concepts (N total)`. Increment `N total`.
-4. **Update tracker**: append a `📘` row for the new seed entry (the user has just been "taught" this supplement).
-5. **Re-prompt understanding for the original step**: do NOT auto-advance after answering a question. Re-render the understanding prompt for the same step. This loop continues until confirmation.
+1. **Answer in chat only**: explain in `{LANG}`, textbook-grade depth (per `setup`'s Equal Depth Rule). Include mermaid/ASCII diagram if it clarifies (recommended, not required).
+2. **Append to in-memory pending buffer** for the current step (do NOT touch the source note, tracker, or seed block yet):
+   - Record `{question, answer, short_topic, timestamp}` so confirmation can flush all related Q&As at once.
+   - The note file's mtime MUST remain unchanged until the user confirms understanding.
+3. **Re-prompt understanding for the original step**: do NOT auto-advance. Re-render the understanding prompt for the same step. This loop continues until confirmation.
 
-The user can ask multiple questions per step — each generates its own `## … [supplement]` section. The original section is never modified.
+The user can ask multiple questions (including follow-ups when an earlier answer wasn't understood) — they all stay in the pending buffer and are flushed together as one bundled batch on the next confirmation. The original section is never modified.
 
 ### Phase L5: Finalize
 
@@ -151,6 +155,8 @@ Once the loop completes (last step confirmed):
 - Lesson never demotes 🟢 / 🟡 / 🔴 to 📘. The state machine direction is `📘 → {🔴, 🟡, 🟢}` only, owned by `quiz`.
 - Lesson never modifies error notes — they belong to `quiz`.
 - Every new tracker row goes through the seed block first. The Option A invariant from [progress-rules.md §1](../quiz/references/progress-rules.md) is preserved: `|tracker rows| ≤ |seed entries|`.
+- **Note mtime invariant**: between an understanding prompt and the user's confirmation, the source note's mtime never changes. Q&A persistence is strictly deferred to confirmation.
+- If the user aborts mid-step ("그만" / Ctrl-C) before confirming, the pending buffer is **discarded** — unconfirmed Q&As are not written to disk. Already-confirmed steps are already persisted.
 - All cross-file references use relative-path markdown.
 
 ## Important Reminders
@@ -158,4 +164,5 @@ Once the loop completes (last step confirmed):
 - ALWAYS read [progress-rules.md](../quiz/references/progress-rules.md) before Phase L3 / L4.3 / L5 — it defines the `📘` semantics and the dashboard formula.
 - ALWAYS read [lesson-rules.md](references/lesson-rules.md) before Phase L2 / L4.
 - Never auto-advance on ambiguous responses. When in doubt, treat as a question.
-- Lesson is read-mostly for the source note: only **append** new sections, never edit existing ones.
+- Never write to the source note while a step is "in-progress" (between prompt and confirmation). Q&A goes through the pending buffer.
+- Lesson is read-mostly for the source note: only **append** new sections at confirmation time, never edit existing ones.

@@ -99,9 +99,52 @@ Persist `concepts/{area}.md` after each confirmation (one write per step). This 
 
 ---
 
+## §Pending Q&A Buffer
+
+Lesson defers all Q&A persistence to the moment of explicit user confirmation. While a step is "in-progress" (between the understanding prompt and the user's next confirmation), Q&As accumulate in an in-memory buffer and the source note's mtime MUST remain unchanged.
+
+### Buffer shape (per step)
+
+```
+pending[step_index] = [
+  {
+    question:      <verbatim user message>,
+    answer:        <chat-rendered explanation, including any diagram>,
+    short_topic:   <noun phrase ≤ 8 words derived from the question>,
+    timestamp:     <YYYY-MM-DD>,
+  },
+  ...
+]
+```
+
+### Lifecycle
+
+| Event | Effect on buffer | Effect on disk |
+|---|---|---|
+| User asks a question on step S | Append entry to `pending[S]` | None (no Write/Edit on source note, tracker, or seed block) |
+| User asks a follow-up because the previous answer was unclear | Append the follow-up Q&A to `pending[S]`. Earlier entries remain queued. | None |
+| User confirms understanding for step S | Flush `pending[S]` as a single bundled batch (see below). Clear `pending[S]`. | One Write/Edit pass on source note (all queued `[supplement]` sections appended together), then tracker + seed-block updates per §Tracker Updates on Confirmation and §Seed Block Update on Q&A. |
+| User aborts mid-step ("그만" / Ctrl-C) before confirmation | `pending[S]` is **discarded**. | None — unconfirmed Q&As are not written to disk. Already-confirmed steps remain persisted. |
+
+### Bundling rule
+
+All entries in `pending[S]` belong to the same logical "Q&A bundle" because they share the same in-progress step. On flush:
+
+1. Append the `[supplement]` `##` sections to the source note in buffer order, contiguous block, **single Write/Edit operation** (one mtime change).
+2. Append the corresponding `- … [supplement]` lines to the seed block in the same order, updating `N total` by `len(pending[S])`.
+3. Append `📘` tracker rows in the same order.
+
+This satisfies the user requirement that Q&A reflects to the note "한번에" (once) — per related-Q&A-bundle, gated on explicit understanding.
+
+### What constitutes "explicit confirmation"
+
+Per §Response Classification — only short, lexicon-matched, non-interrogative confirmations advance the step. Anything else stays a question and the buffer keeps growing. There is no time-based or heuristic auto-flush.
+
+---
+
 ## §Q&A Section Template
 
-When the user asks a question on step S, append the following to the END of the concept note (after all existing `##` sections):
+When the pending Q&A buffer is flushed on confirmation, each buffered entry produces one section appended to the END of the concept note (after all existing `##` sections). All entries from the same bundle are written contiguously in a single Write/Edit:
 
 ```markdown
 
@@ -133,6 +176,8 @@ The `[supplement]` tag in the heading is required — it lets future `sync` runs
 ---
 
 ## §Seed Block Update on Q&A
+
+These updates run as part of the confirmation flush (§Pending Q&A Buffer), once per buffered entry, in the same bundle. They do NOT run at question time.
 
 After appending a `[supplement]` section, also:
 1. Append to `## Concepts (N total)` seed block:
@@ -170,4 +215,4 @@ The user can override by typing `다시` / `review` BEFORE lesson advances past 
 | Tracker file missing | Stop, suggest `/setup` or `/sync`. |
 | Seed block missing in tracker | Apply progress-rules.md §1 fallback (treat file list as seed) and emit a one-time warning suggesting `/sync`. |
 | All steps already 🟡 / 🟢 | Ask user whether to re-teach from the top. Default is to stop. |
-| User aborts mid-lesson (Ctrl-C / "그만") | Already-confirmed steps are persisted (per-step writes). Next `/lesson` resumes from the next pending step automatically. |
+| User aborts mid-lesson (Ctrl-C / "그만") | Already-confirmed steps are persisted (per-step writes). Pending Q&A buffer for the in-progress step is discarded. Next `/lesson` resumes from the next pending step automatically. |
