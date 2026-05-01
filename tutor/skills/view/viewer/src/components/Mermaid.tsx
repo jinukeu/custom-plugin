@@ -32,6 +32,50 @@ function getMermaidConfig(dark: boolean) {
   }
 }
 
+function quoteLabel(open: string, inner: string, close: string): string {
+  const trimmed = inner.trim()
+  if (!trimmed) return open + inner + close
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) return open + inner + close
+  const needsQuote = /[\s()[\]{}]/.test(trimmed)
+  if (!needsQuote) return open + inner + close
+  const escaped = trimmed.replace(/"/g, '#quot;')
+  return open + '"' + escaped + '"' + close
+}
+
+function preprocessMermaid(code: string): string {
+  const lines = code.split('\n')
+  let inFlowchart = false
+  return lines
+    .map((line) => {
+      const stripped = line.trim()
+      if (/^(flowchart|graph)\s+/i.test(stripped)) {
+        inFlowchart = true
+        return line
+      }
+      if (/^(sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|mindmap|timeline|quadrantChart|sankey|block-beta|gitGraph|c4Context|requirementDiagram)/i.test(stripped)) {
+        inFlowchart = false
+        return line
+      }
+      if (!inFlowchart) return line
+
+      let out = line
+      // Node labels: [..], (..), ((..)), {..}, [(..)] etc.
+      out = out.replace(/(\[\[|\(\(|\[\(|\(\[|\{\{|\[|\(|\{)([^\[\]\(\)\{\}|"]*?)(\]\]|\)\)|\)\]|\]\)|\}\}|\]|\)|\})/g, (m, open, inner, close) => {
+        return quoteLabel(open, inner, close)
+      })
+      // Edge labels: |...|
+      out = out.replace(/\|([^|"]+)\|/g, (m, inner) => {
+        const trimmed = inner.trim()
+        if (!trimmed) return m
+        if (trimmed.startsWith('"') && trimmed.endsWith('"')) return m
+        if (!/[\s()[\]{}]/.test(trimmed)) return m
+        return '|"' + trimmed.replace(/"/g, '#quot;') + '"|'
+      })
+      return out
+    })
+    .join('\n')
+}
+
 interface Props {
   code: string
 }
@@ -46,7 +90,7 @@ export function Mermaid({ code }: Props) {
     mermaid.initialize(getMermaidConfig(isDark))
     const id = 'mermaid-' + Math.random().toString(36).slice(2, 10)
     mermaid
-      .render(id, code)
+      .render(id, preprocessMermaid(code))
       .then(({ svg }) => {
         setSvg(svg)
         setError(null)
@@ -62,7 +106,7 @@ export function Mermaid({ code }: Props) {
       mermaid.initialize(getMermaidConfig(isDark))
       const id = 'mermaid-' + Math.random().toString(36).slice(2, 10)
       mermaid
-        .render(id, code)
+        .render(id, preprocessMermaid(code))
         .then(({ svg }) => setSvg(svg))
         .catch(() => {})
     })
