@@ -58,20 +58,27 @@ function preprocessMermaid(code: string): string {
       }
       if (!inFlowchart) return line
 
-      let out = line
+      // Mask pre-quoted segments so we don't re-process their contents.
+      const masks: string[] = []
+      let masked = line.replace(/"[^"]*"/g, (m) => {
+        masks.push(m)
+        return `\x00${masks.length - 1}\x00`
+      })
+
       // Node labels: [..], (..), ((..)), {..}, [(..)] etc.
-      out = out.replace(/(\[\[|\(\(|\[\(|\(\[|\{\{|\[|\(|\{)([^\[\]\(\)\{\}|"]*?)(\]\]|\)\)|\)\]|\]\)|\}\}|\]|\)|\})/g, (m, open, inner, close) => {
+      masked = masked.replace(/(\[\[|\(\(|\[\(|\(\[|\{\{|\[|\(|\{)([^\[\]\(\)\{\}|"]*?)(\]\]|\)\)|\)\]|\]\)|\}\}|\]|\)|\})/g, (m, open, inner, close) => {
         return quoteLabel(open, inner, close)
       })
       // Edge labels: |...|
-      out = out.replace(/\|([^|"]+)\|/g, (m, inner) => {
+      masked = masked.replace(/\|([^|"]+)\|/g, (m, inner) => {
         const trimmed = inner.trim()
         if (!trimmed) return m
         if (trimmed.startsWith('"') && trimmed.endsWith('"')) return m
         if (!/[\s()[\]{}]/.test(trimmed)) return m
         return '|"' + trimmed.replace(/"/g, '#quot;') + '"|'
       })
-      return out
+
+      return masked.replace(/\x00(\d+)\x00/g, (_, idx) => masks[Number(idx)])
     })
     .join('\n')
 }
