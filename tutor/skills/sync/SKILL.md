@@ -21,15 +21,15 @@ Detects changes in source materials since last build and incrementally updates t
 ```
 NEVER DELETE:
   - Error notes (오답 메모) — 학습 이력 전체 보존
-  - concepts/**, *dashboard*, archive/** — 파일 삭제 금지 (archive 이동만)
+  - concepts/**, dashboard.md, archive/** — 파일 삭제 금지 (archive 이동만)
 
 ALWAYS REQUIRE APPROVAL (AskUserQuestion):
   - concepts/{area}.md rename / merge / archive
-  - *dashboard* area 행 rename / archive 표시
+  - dashboard.md area 행 rename / archive 표시
   - 콘텐츠 노트 archive 이동
 
 AUTOMATIC (non-destructive):
-  - 새 area → *dashboard* Proficiency 표에 ⬜ 행 추가 + concepts/{area}.md 생성 (seed populate, tracker 비움)
+  - 새 area → dashboard.md Proficiency 표에 ⬜ 행 추가 + concepts/{area}.md 생성 (seed populate, tracker 비움)
   - content-stale concept 행에 ⚠️ 플래그 추가 (삭제 아님, progress-rules §6의 🟡 time-stale과 별개)
   - Coverage / Accuracy / Mastery / Level 재계산 (progress-rules §2, §3)
 
@@ -43,12 +43,13 @@ ALWAYS SKIP:
 
 1. Detect language → `{LANG}`. All user-facing output in `{LANG}`.
 2. Glob `**/StudyVault/`. If not found → "StudyVault가 없습니다. 먼저 `/setup`을 실행하세요." and stop.
+3. **Dashboard canonicalization**: Glob `**/StudyVault/*dashboard*` and `**/StudyVault/*대시보드*` (vault root only). If any match exists at a non-canonical path, rename it to `StudyVault/dashboard.md`. If multiple found, keep the most recent and move the rest to `StudyVault/archive/duplicate-dashboards/`. Single-file invariant: there is exactly one learning dashboard per vault, at `StudyVault/dashboard.md`.
 
 ### Phase S1: Manifest Load (with backfill)
 
 1. Read `StudyVault/.manifest.json`.
 2. **If missing → Backfill Mode** (1회 한정):
-   - Read every note in `StudyVault/**/*.md` (exclude `concepts/`, `*dashboard*`, `archive/`).
+   - Read every note in `StudyVault/**/*.md` (exclude `concepts/`, `dashboard.md`, `archive/`).
    - Parse YAML frontmatter — collect `source_pdf` values to build source → note[] mapping.
    - Scan CWD sources, compute hashes per Phase S2 normalization.
    - Write initial `.manifest.json` per [manifest-schema.md](references/manifest-schema.md).
@@ -130,7 +131,7 @@ For each ✏️ modified source:
 3. **MD section-level optimization**: If `.md` and manifest has `sections` mapping, regenerate **only notes mapped to changed H2 sections**.
 4. **PDF/other**: regenerate all `notes[]` for that source.
 5. Use `../setup/references/templates.md`. Preserve existing `keywords`, `part` unless source content invalidates.
-6. Do NOT touch `*dashboard*`, `concepts/`, `archive/` here.
+6. Do NOT touch `dashboard.md`, `concepts/`, `archive/` here.
 
 ### Phase S7: 삭제 파일 처리
 
@@ -143,7 +144,7 @@ For each 🗑️ deleted source:
 
 ### Phase S8: 콘텐츠 Dashboard 갱신
 
-Update content-side dashboards (NOT the learning-progress `*dashboard*` — that's S9):
+Update content-side dashboards (NOT the learning-progress `dashboard.md` — that's S9):
 
 - `00-Dashboard/moc.md`: Topic Map add/remove rows; Keyword Index add new entries.
 - `00-Dashboard/quick-reference.md`: add sections for new notes with `→ [Concept Note](path.md)`.
@@ -153,11 +154,11 @@ Relative-path markdown only. No wiki-links.
 
 ### Phase S9: 학습 진행 데이터 동기화 (안전 모드)
 
-Sync `*dashboard*` and `concepts/` per case table. Error notes are NEVER deleted.
+Sync `dashboard.md` and `concepts/` per case table. Error notes are NEVER deleted.
 
 | Change | Action | Approval |
 |--------|--------|----------|
-| 🆕 신규 area | `*dashboard*`에 새 행 추가 (`Concepts=<seed 수>`, 나머지=0, ⬜). `concepts/<new>.md` 생성, seed populate (**section-level: area 폴더 각 concept note의 `##` 섹션마다 1개 seed**, boilerplate 섹션 제외, label `<file-basename> · <section-title>`), tracker 비움. | Auto |
+| 🆕 신규 area | `dashboard.md`에 새 행 추가 (`Concepts=<seed 수>`, 나머지=0, ⬜). `concepts/<new>.md` 생성, seed populate (**section-level: area 폴더 각 concept note의 `##` 섹션마다 1개 seed**, boilerplate 섹션 제외, label `<file-basename> · <section-title>`), tracker 비움. | Auto |
 | 🗑️ area 삭제 | `concepts/<area>.md` → `archive/concepts/<area>.md`. Dashboard 행에 `(archived)` + Details 링크 archive 경로로. | **Ask** |
 | ✏️ area rename | `concepts/<old>.md` → `concepts/<new>.md`. 내부 H1 + dashboard 행 이름/링크 갱신. **Tracker 행 (Streak 포함) · Error notes · seed block 전부 원본 보존.** | **Ask** (diff 제시) |
 | ✏️ area 병합 (A+B → C) | seed 병합·중복 제거. Attempts/Correct 합산. **Streak은 합산하지 않고 min(A,B)** (보수적). Error notes는 `**source area**` 부제로 모두 보존. | **Ask** (프리뷰) |

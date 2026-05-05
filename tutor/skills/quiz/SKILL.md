@@ -16,7 +16,7 @@ Quiz-based tutor that tracks what the user knows and doesn't know at the **conce
 
 ```
 StudyVault/
-├── *dashboard*              ← Compact overview: proficiency table + stats
+├── dashboard.md             ← Compact overview: proficiency table + stats (canonical filename)
 └── concepts/
     ├── {area-name}.md       ← Per-area: seed block + tracker table + error notes
     └── ...
@@ -56,7 +56,12 @@ Path discovery only — **do not read `concepts/*.md` here**. Defer reads to Pha
 
 1. Glob `**/StudyVault/`. If none, inform user and stop.
 2. List section directories under `concepts/` (names only).
-3. Glob `**/StudyVault/*dashboard*` for path. Preserve existing path regardless of language.
+3. Resolve dashboard path with this **canonical-first lookup**:
+   1. Try `**/StudyVault/dashboard.md` (canonical). If found → use it.
+   2. Else fallback glob `**/StudyVault/*dashboard*` and `**/StudyVault/*대시보드*` (legacy localized names from older vaults).
+      - If exactly one match found → **rename it to `dashboard.md`** (one-time migration), then use the canonical path.
+      - If multiple matches found → keep the most recently modified one as `dashboard.md`, archive the rest to `StudyVault/archive/duplicate-dashboards/`, and emit a one-time notice: `ℹ️ 중복된 학습 대시보드 N개를 발견했습니다. 가장 최근 파일을 dashboard.md로 정리하고 나머지는 archive/duplicate-dashboards/로 이동했습니다.`
+   3. Else (none found) → defer creation to Phase 2.5 step 4 (template-based, canonical path only).
 4. Do **not** read dashboard or concept files yet.
 
 ### Phase 2: Ask Session Type (fixed options)
@@ -87,7 +92,7 @@ Then on the loaded scope:
 1. **Schema backfill** (one-time per file): If `Streak` column or `## Concepts (N total)` seed missing → apply [§8](references/progress-rules.md). Files outside loaded scope are backfilled lazily on next selection or in bulk in Phase 6.
 2. **Stale detection**: If `Status == 🟢 AND (today − Last Tested) > 14 days` → demote to 🟡 (Streak preserved).
 3. **Persist**: Write changed concept file(s). Do not touch Attempts / Correct / Error notes.
-4. **Create dashboard** from [templates.md](references/templates.md) if missing.
+4. **Create dashboard** at the canonical path **`StudyVault/dashboard.md`** from [templates.md](references/templates.md) if missing. Do NOT create any other variant (`학습 대시보드.md`, `Learning Dashboard.md`, etc.) — there is exactly one learning dashboard per vault.
 5. **Notify user** only if scope changed:
    ```
    ℹ️ {N}개 개념이 복습 대기(stale)로 전환되었습니다.

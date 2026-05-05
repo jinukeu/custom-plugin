@@ -60,13 +60,16 @@ Create `StudyVault/` with numbered folders per [templates.md](references/templat
 
 ### Phase D5: Dashboard Creation
 
-Create `00-Dashboard/`: MOC, Quick Reference, Exam Traps. See [templates.md](references/templates.md).
+This phase creates **two distinct artifacts**. They are NOT duplicates — keep both, exactly one of each:
 
-- **MOC**: Topic Map + Practice Notes + Study Tools + Keyword Index (with rules) + Weak Areas (with links) + Non-core Topic Policy
-- **Quick Reference**: every heading includes `→ [Concept Note](relative/path.md)`; all key formulas
-- **Exam Traps**: per-topic trap points inside `<details>` blocks, linked to concept notes
+1. **Content MOC bundle** at `StudyVault/00-Dashboard/` (a directory):
+   - `00-Dashboard/moc.md` — Topic Map + Practice Notes + Study Tools + Keyword Index (with rules) + Weak Areas (with links) + Non-core Topic Policy
+   - `00-Dashboard/quick-reference.md` — every heading includes `→ [Concept Note](relative/path.md)`; all key formulas
+   - `00-Dashboard/exam-traps.md` — per-topic trap points inside `<details>` blocks, linked to concept notes
 
-Also create the **learning progress dashboard** (`*dashboard*` at `StudyVault/` root, filename localized e.g. `학습 대시보드.md`) per the "Learning Dashboard Template" in [templates.md](references/templates.md). All areas start at ⬜ Undersampled / 0 Mastery. Columns MUST be exactly `Area | Concepts | Covered | Accuracy | Mastery | Level | Details` — matches the schema `quiz` reads. See [../quiz/references/progress-rules.md §2](../quiz/references/progress-rules.md) for the contract.
+2. **Learning progress dashboard** — exactly ONE file at the canonical path **`StudyVault/dashboard.md`** (lowercase, English filename, no spaces). The H1 heading and all table content MUST be in the source language (e.g. `# 학습 대시보드` for Korean sources) — only the *filename* is canonical English so all sibling skills (`quiz`, `lesson`, `sync`) can find it deterministically. Create it per the "Learning Dashboard Template" in [templates.md](references/templates.md). All areas start at ⬜ Undersampled / 0 Mastery. Columns MUST be exactly `Area | Concepts | Covered | Accuracy | Mastery | Level | Details` — matches the schema `quiz` reads. See [../quiz/references/progress-rules.md §2](../quiz/references/progress-rules.md) for the contract.
+
+> **Single-file invariant (MANDATORY)**: there is exactly ONE learning-progress dashboard per vault, at `StudyVault/dashboard.md`. Do NOT also create `학습 대시보드.md`, `Learning Dashboard.md`, `00-Dashboard/dashboard.md`, or any other variant. If a legacy localized file (`*dashboard*` or `*대시보드*`) already exists at the vault root, **rename it to `dashboard.md`** instead of creating a new one.
 
 ### Phase D6: Concept Notes — Textbook-Level Depth
 
@@ -88,7 +91,7 @@ Per [templates.md](references/templates.md). Key rules:
 
 Triggered when `/setup` is invoked with `--enrich` (no source argument required). Skip Phases D1–D5 and D7+ — operate ONLY on the existing `StudyVault/`.
 
-1. **Scan**: walk `StudyVault/**/*.md` excluding `00-Dashboard/`, `concepts/`, practice files, and the learning dashboard.
+1. **Scan**: walk `StudyVault/**/*.md` excluding `00-Dashboard/`, `concepts/`, practice files, and `dashboard.md` (learning dashboard).
 2. **Score each concept note** against the Phase D6 *density floor*:
    - Missing any of the 5 required subsections (definition / intuition / principle / ≥2 examples / misconceptions) → **under-spec**.
    - Missing role-labeled `## Related Notes` (prerequisite/sibling/downstream) → **under-spec**.

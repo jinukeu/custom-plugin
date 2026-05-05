@@ -29,7 +29,7 @@ Step-by-step concept tutor that walks the learner through one concept note `##` 
 
 ```
 StudyVault/
-├── *dashboard*               ← Learning Dashboard (recomputed at lesson end)
+├── dashboard.md              ← Learning Dashboard (canonical path; recomputed at lesson end)
 ├── concepts/
 │   └── {area}.md             ← Tracker + seed block (mutated per section)
 └── NN-<area>/
@@ -140,7 +140,7 @@ The user can ask multiple questions (including follow-ups when an earlier answer
 
 Once the loop completes (last step confirmed):
 
-1. **Recompute Learning Dashboard** per [progress-rules.md §2](../quiz/references/progress-rules.md). Read all `concepts/*.md`. Update the row for this area and the Stats block (including the `Learned (📘)` count). Write the dashboard.
+1. **Recompute Learning Dashboard** per [progress-rules.md §2](../quiz/references/progress-rules.md). Read all `concepts/*.md`. Update the row for this area and the Stats block (including the `Learned (📘)` count). Write the dashboard at the canonical path **`StudyVault/dashboard.md`**. If a legacy localized file exists at the vault root (`*dashboard*` / `*대시보드*` other than `dashboard.md`), rename it to `dashboard.md` before writing — never write a second dashboard file.
 2. **Print a session summary**:
    ```
    ✅ {file-basename} 학습 완료

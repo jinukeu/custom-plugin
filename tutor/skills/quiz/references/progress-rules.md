@@ -70,7 +70,7 @@ If the `## Concepts (N total)` seed block is missing (older vault not yet migrat
 
 ## 2. Dashboard Schema
 
-`StudyVault/*dashboard*`:
+`StudyVault/dashboard.md` (canonical path — single file per vault; H1 and table content stay in source language):
 
 ```markdown
 # Learning Dashboard

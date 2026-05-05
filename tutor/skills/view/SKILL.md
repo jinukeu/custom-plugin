@@ -11,6 +11,17 @@ allowed-tools: Read, Write, Edit, Glob, Bash
 
 Bootstraps a Vite + React viewer that renders the user's `StudyVault/` as a polished browsable site. Runs **directly from the skill's own `viewer/` directory** — nothing copied into the user's project. Vault is wired in via a single symlink (`viewer/vault → <project>/StudyVault`), refreshed on every invocation.
 
+## Execution Context (MANDATORY)
+
+**Run every step of this skill in the main Claude session — never delegate to a subagent.** Do NOT use the `Task` tool, the `Agent` tool, or any `subagent_type` (`general-purpose`, `Explore`, `codex:codex-rescue`, etc.) to execute the bootstrap, the `npm install`, or the `npm run dev` command.
+
+Reasons:
+- `npm run dev` is a **long-running foreground process**. Inside a subagent it would block the agent's bash and the user would never see the dev-server URL or HMR logs.
+- The user needs to interact with the live server (open browser, hit Ctrl-C to stop) — that interaction must happen in their main session, not inside an isolated subagent context.
+- Symlink refresh (`viewer/vault`) and dev-server lifecycle should be visible to the user as they happen, not buried inside a subagent's tool transcript.
+
+If you (the assistant) feel tempted to spawn an agent for "parallel exploration" or "background work" while running `/view`: don't. Read this file, then execute the Bootstrap block below directly via the main session's `Bash` tool.
+
 ## Pre-flight
 
 1. Glob `StudyVault/**/*.md` from CWD. If empty: tell user to run `/setup` first and stop.

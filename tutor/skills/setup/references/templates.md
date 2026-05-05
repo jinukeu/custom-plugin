@@ -11,9 +11,9 @@ StudyVault/
   NN-문제풀이/ (or Practice/)
 ```
 
-## Learning Dashboard Template (`*dashboard*`)
+## Learning Dashboard Template (`StudyVault/dashboard.md`)
 
-> Distinct from MOC. Spec of record: [../../quiz/references/progress-rules.md §2, §3](../../quiz/references/progress-rules.md).
+> Canonical filename: **`dashboard.md`** at the vault root — lowercase English so cross-skill globs are deterministic. The H1 and table content stay in the source language. Distinct from the `00-Dashboard/` MOC bundle (different artifact). Spec of record: [../../quiz/references/progress-rules.md §2, §3](../../quiz/references/progress-rules.md).
 
 ```markdown
 # Learning Dashboard
