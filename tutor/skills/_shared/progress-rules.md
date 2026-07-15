@@ -72,6 +72,14 @@ This yields `|tracker rows| ≤ |seed entries| = N` as a hard invariant, which i
 - candidate label — why it didn't match any seed entry (one line)
 ```
 
+**Auto-passed section (optional)**: `### Auto-passed (지엽)` is an append-only log of concepts marked 🟢 **without testing** because they only admit trivial (지엽적) questions — see §4 Auto-Pass. Like Error Notes, this section is permanent history: `sync` must preserve it across renames/merges/archives. Format:
+
+```markdown
+### Auto-passed (지엽)
+
+- concept label — one-line reason (YYYY-MM-DD)
+```
+
 ### Fallback for total concept count
 
 If the `## Concepts (N total)` seed block is missing (older vault not yet migrated), fall back to: `area 폴더 NN-<area>/*.md 파일 수 중 Practice/practice/문제풀이/빈출 문제 제외`. Emit a one-time warning suggesting the user run `/sync` or let quiz auto-backfill.
@@ -164,7 +172,7 @@ Status values:
 | 📘 | learned | Explained via `lesson` skill, **not yet quiz-tested**. Attempts/Correct/Streak all 0 |
 | 🔴 | unresolved | Currently missed; has error note |
 | 🟡 | tentative | One correct answer not yet confirmed (Streak = 1) |
-| 🟢 | confirmed | Mastered: Streak ≥ 2 |
+| 🟢 | confirmed | Mastered: Streak ≥ 2 — or auto-passed via 지엽성 게이트 (may have Attempts = 0; see Auto-Pass below) |
 
 Transition table (on each graded answer):
 
@@ -202,6 +210,22 @@ not gated = (concept NOT IN session_wrong_set)
 ```
 
 즉, `🟡 + correct + Streak+1 ≥ 2` 조건이 모두 충족되어도, 해당 개념이 `session_wrong_set`에 있으면 Status는 🟡로 유지된다.
+
+**Auto-Pass (지엽성 게이트)**
+
+`quiz` Phase 3 may determine that a concept can only be tested with trivial (지엽적) questions — 수치 암기, 이름 철자, 나열 순서 등 이해도와 무관한 세부사항 (spec: [quiz-rules.md §Triviality Gate](../quiz/references/quiz-rules.md)). Such a concept is **not quizzed**; instead it is marked 🟢 immediately:
+
+| Current | Next Status | Attempts | Correct | Streak | Error Note |
+|---------|-------------|----------|---------|--------|------------|
+| (new) / 📘 / 🔴 / 🟡 | 🟢 | unchanged (0 for new row) | unchanged | unchanged | keep |
+
+- `Last Tested = today` — records the auto-pass decision date, not an actual test.
+- Attempts/Correct are **never fabricated**: an auto-passed row that was never tested keeps `0 / 0`. The `Attempts = 0, Status = 🟢` pattern is itself the auto-pass marker.
+- A one-line reason is appended to the concept file's `### Auto-passed (지엽)` section (§1).
+- Auto-passed rows count as normal 🟢 in Covered / Accuracy / Mastery (§2) — by design: a concept whose only askables are trivia must not block progression or keep resurfacing as a drill target.
+- From 🔴 (typically a leftover miss on a pre-gate trivial question): the unresolved flag is lifted, but the error note is kept (never deleted, per this section).
+- `session_wrong_set` does not interact with auto-pass: the decision happens at question-building time, and a concept missed in the current session was by definition testable non-trivially, so it is not auto-pass eligible.
+- Auto-pass is one-way within a run: once 🟢 via auto-pass, later quizzes simply skip it (nothing non-trivial to ask). If material changes after a `/sync` and substantive questions become possible, normal §4 transitions apply from the current row.
 
 **📘 ownership**: The `📘 Learned` status is set exclusively by the `lesson` skill (when the user signals understanding for a section). `quiz` only **reads** `📘` (treating it like `(new)` in §4 transitions, replacing the row in place) and never **writes** `📘`. `lesson` may upgrade missing rows to `📘` but must not overwrite existing `🔴/🟡/🟢` rows.
 

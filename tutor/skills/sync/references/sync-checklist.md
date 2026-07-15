@@ -9,6 +9,7 @@ Verify every item after sync phases complete. Fix and re-verify until all pass.
 - [ ] **Merged** areas: combined file contains both source areas' error notes, each prefixed with `**source area**` for traceability.
 - [ ] **Archived** areas: `archive/concepts/<area>.md` exists with full original tracker + error notes.
 - [ ] Diff check: `grep -c '^\*\*[^*]' concepts/*.md archive/concepts/*.md` post-sync ≥ pre-sync per area.
+- [ ] `### Auto-passed (지엽)` sections preserved across rename/merge/archive, same as error notes (append-only history — see [progress-rules §1](../../_shared/progress-rules.md)).
 
 ## 2. Approval Log
 

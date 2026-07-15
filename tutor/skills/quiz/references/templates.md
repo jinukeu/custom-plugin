@@ -77,3 +77,13 @@ Normally created by `setup` with a populated seed block. If `quiz` creates this 
 - Confusion: what the user mixed up
 - Key point: the correct understanding
 ```
+
+## Auto-passed Format (used by Phase 6 when the 지엽성 게이트 fires)
+
+Append-only; create the section (after Error Notes) on first use.
+
+```markdown
+### Auto-passed (지엽)
+
+- concept name — 수치 나열만 있어 개념 이해를 측정할 문항 구성 불가 (2026-07-15)
+```

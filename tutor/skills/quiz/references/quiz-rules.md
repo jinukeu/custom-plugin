@@ -10,7 +10,20 @@ Every question must be answerable ONLY by someone who actually knows the materia
 
 2. **No "(Recommended)" tag** on any option
 
-3. **Randomize** correct answer position — never always first or last
+3. **Randomize correct answer position MECHANICALLY** — LLM "mental randomness" is biased: it clusters the correct answer on the same slot across questions (the exact bug this rule exists to prevent). Never place answers by intuition:
+   - Before assembling options (Phase 4), generate the positions with one Bash call:
+     ```bash
+     python3 -c "
+     import random
+     N = 4  # questions in this round (adjust if fewer)
+     while True:
+         p = [random.randint(1, 4) for _ in range(N)]
+         if max(p.count(v) for v in p) <= 2:
+             print(*p); break"
+     ```
+   - The i-th number = the correct option's slot for question i. Fill the remaining slots with distractors.
+   - The re-roll constraint guarantees no slot is correct more than twice per round — "계속 같은 번호가 정답" cannot happen.
+   - Do NOT use an exact permutation of 1–4 instead: knowing "each slot is used exactly once" would let a test-taker deduce the last answer by elimination.
 
 4. **Question phrasing**: Ask about behavior/purpose/output, don't hint at the answer
    - BAD: "Which error stream does error() use?"
@@ -30,6 +43,21 @@ Counterweight to Zero-Hint: hiding the answer is NOT the same as stripping conte
 
 - BAD: "Which of the following is correct?" + [near-context-free one-line options]
 - GOOD: "<1–2 sentences laying out situation · premises · criteria>, which is correct?" + [...]
+
+## Triviality Gate & Auto-Pass (지엽성 게이트)
+
+Questions must measure **understanding**, not incidental detail. A question is *trivial* (지엽적) when NOT knowing the answer does not indicate a gap in understanding the concept:
+
+- Exact figures lifted from a table (limits, dates, default values) when the concept is about the mechanism, not the number
+- Arbitrary spellings: flag/parameter/option names, section numbers, file names
+- Enumeration memorization: "how many X are there?", "which is NOT in the list?", list-order recall
+- Source-document incidentals: example values, phrasing quirks of the material
+
+Litmus test: **"Would someone who genuinely understands this concept necessarily know this detail?"** If no, the question is trivial.
+
+1. **Never include a trivial question.** Before giving up on a concept, try lifting it to a substantive angle (behavior / purpose / mechanism / comparison / debugging — see Question Types). Short ≠ trivial: factual recall of a load-bearing fact is fine.
+2. **Auto-pass trivial-only concepts**: if a target concept offers ONLY trivial askables (pure enumeration / spec listing with no conceptual substance), do NOT quiz it. Add it to `auto_passed` (concept + one-line reason) in Phase 3; Phase 6 marks it 🟢 immediately without testing (spec: [progress-rules.md §4 Auto-Pass](../../_shared/progress-rules.md)).
+3. **Refill the slot** with the next eligible concept. If the pool runs dry, a round with fewer than 4 questions is acceptable — never pad with trivia.
 
 ## Question Types
 

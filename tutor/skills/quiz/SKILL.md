@@ -97,11 +97,14 @@ Then on the loaded scope:
    - **Drill weak**: 🔴 unresolved → rephrase in new contexts.
    - **Diagnostic**: undersampled areas; untested seed concepts have priority.
    - **Choose a section / Hard-mode**: sample broadly from chosen area.
-3. Craft exactly 4 questions following [quiz-rules.md](references/quiz-rules.md).
+3. **Triviality gate (지엽성 게이트)**: check each target against [quiz-rules.md §Triviality Gate](references/quiz-rules.md). If a concept only supports trivial questions (수치 암기·이름 철자·나열 순서 등), do NOT quiz it — add it to `auto_passed` (concept + one-line reason, initialized empty per invocation) and pick the next eligible target instead.
+4. Craft 4 questions following [quiz-rules.md](references/quiz-rules.md). If eligible targets run dry after auto-passes, fewer than 4 is acceptable — never pad the round with trivial questions. If ALL targets were auto-passed (0 questions), skip Phase 4–5 and go directly to Phase 6.
 
-**CRITICAL**: Read `references/quiz-rules.md` before crafting ANY question. Zero hints — but hiding the answer ≠ stripping context: each stem must lay out enough situation/premises/criteria that someone who knows the concept can tell what is being asked.
+**CRITICAL**: Read `references/quiz-rules.md` before crafting ANY question. Zero hints — but hiding the answer ≠ stripping context: each stem must lay out enough situation/premises/criteria that someone who knows the concept can tell what is being asked. And no trivia: a question must test understanding, not incidental detail.
 
 ### Phase 4: Present Quiz
+
+**Answer-position shuffle (MANDATORY, before assembling options)**: run the Bash one-liner from [quiz-rules.md §Zero-Hint rule 3](references/quiz-rules.md) to generate the correct-answer slot for each question. Place each correct option at its drawn slot and fill the rest with distractors — never position answers by intuition (it clusters on the same slot).
 
 Use AskUserQuestion: 4 questions, 4 options each, single-select. Header `Q1. Topic` (max 12 chars). Descriptions: neutral, no hints.
 
@@ -110,6 +113,7 @@ Use AskUserQuestion: 4 questions, 4 options each, single-select. Header `Q1. Top
 1. Show results table (question / correct / user / result).
 2. Wrong answers: concise explanation.
 3. Map each question to its area.
+4. If `auto_passed` is non-empty, tell the user which concepts were auto-passed to 🟢 and why (e.g. "ℹ️ 다음 개념은 지엽적 세부사항만 남아 있어 출제 없이 🟢 처리했습니다: {concept} — {reason}").
 
 ### Phase 6: Update Files
 
@@ -128,6 +132,8 @@ Apply transitions from [§4 Status Transitions](../_shared/progress-rules.md). K
   - 🟢 → correct → 🟢 (Streak++)
   - Any → wrong → 🔴 (Streak = 0, error note updated)
 - Error notes are **never deleted** — preserved even after return to 🟢.
+
+**Auto-pass application (지엽성 게이트)**: For each `auto_passed` concept from Phase 3, apply [§4 Auto-Pass](../_shared/progress-rules.md): Status → 🟢, Attempts/Correct/Streak **unchanged** (0 for a new row — do not fabricate attempts), `Last Tested = today`, error notes kept. Append one bullet to the concept file's `### Auto-passed (지엽)` section (create if missing; format: [templates.md](references/templates.md)). Auto-passed labels follow the same seed-authoritative rule below. `session_wrong_set` does not apply — auto-passes are decided at question-building time, before any grading.
 
 **Seed-authoritative labeling (MANDATORY)**: Every tracker row label MUST exactly match a `## Concepts (N total)` seed entry. For each graded answer:
 
@@ -171,6 +177,8 @@ Dashboard / Concept file / Tracker row / Error note formats: see [references/tem
 
 - ALWAYS read [progress-rules.md](../_shared/progress-rules.md) before Phase 2.5 / Phase 6 (spec of record).
 - ALWAYS read [quiz-rules.md](references/quiz-rules.md) before creating questions. Zero hints, but provide sufficient context (situation/premises/criteria) — see quiz-rules.md §Provide Sufficient Context.
+- NEVER quiz trivia. Concepts that only admit 지엽적 questions are auto-passed to 🟢 without testing — see quiz-rules.md §Triviality Gate.
+- Correct-answer positions come from the Phase 4 Bash shuffle, never from intuition — intuition clusters on the same slot.
 - Error notes are NEVER deleted — permanent learning history.
 - All cross-file links use relative-path markdown, never wiki-links.
 - **"Mastered/마스터" 어휘 사용 규칙**: 사용자에게 보여주는 자유 텍스트(축하 멘트, 요약 문장 등)에서 "Mastered", "마스터", "정복" 같은 표현은 **해당 영역의 Level이 §3 기준 🟦 Mastered일 때만** 사용한다. 그 외에는 "정답률 향상", "이번 세션에서 N개 개선", "🟡로 승급", "🔴 N개 남음" 처럼 사실 기반 표현을 쓴다. 한 문제만 맞아도 Status가 🟢이 되었다는 이유로 area를 "마스터"라고 부르지 않는다.

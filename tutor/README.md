@@ -176,6 +176,8 @@ CLI shortcuts: `/quiz diagnostic`, `/quiz drill-weak`, `/quiz section <area>`, `
 4. Grades answers and explains mistakes
 5. Updates concept files and dashboard automatically
 
+Questions test **understanding, not trivia**: concepts that only admit peripheral questions (지엽적 — exact figures, name spellings, list order) are never quizzed. They are auto-passed straight to 🟢 with a logged reason, and the slot is refilled with a substantive question.
+
 ### Progress Tracking
 
 Proficiency is tracked per area with two axes — **Coverage** (how many concepts have been tested) and **Mastery** (how many are confirmed 🟢). Level badges combine both (spec: [`_shared/progress-rules.md`](skills/_shared/progress-rules.md)):
@@ -193,7 +195,7 @@ Proficiency is tracked per area with two axes — **Coverage** (how many concept
 - 📘 learned (via `lesson`, not yet quiz-tested)
 - 🔴 unresolved (currently missed)
 - 🟡 tentative (one correct, not yet confirmed)
-- 🟢 confirmed (Streak ≥ 2)
+- 🟢 confirmed (Streak ≥ 2, or auto-passed when only trivial questions are possible)
 
 Status transitions:
 - First correct → 🟡 (needs Streak ≥ 2 to confirm as 🟢)
